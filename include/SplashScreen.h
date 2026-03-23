@@ -10,19 +10,16 @@
 
 #include "DisplayManager.h"
 
-// Forward declaration to avoid pulling in WebServer.h
-class WebServer;
+
 
 class SplashScreen {
 public:
     /**
      * @brief Play the full splash animation sequence.
      * @param display  Reference to the display manager (dependency injection).
-     * @param server   Optional web server pointer — if non-null, handleClient()
-     *                 is called during animation to keep the web portal responsive.
      * @param force    If true, plays even when splash is disabled in settings.
      */
-    void play(DisplayManager& display, WebServer* server, bool force = false);
+    void play(DisplayManager& display, bool force = false);
 
     /** @brief Set whether the splash screen is enabled. */
     void setEnabled(bool enabled) { enabled_ = enabled; }

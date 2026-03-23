@@ -11,23 +11,22 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <ctime>
+#include <DNSServer.h>
+#include "AppState.h"
 
 class NetworkManager {
 public:
     /**
-     * @brief Start WiFi in AP+STA mode and configure NTP.
-     *
-     * Sets up a soft access point for configuration and simultaneously
-     * connects to the configured WiFi network for internet/NTP access.
+     * @brief Start WiFi in AP+STA mode using credentials from AppState.
      */
-    void begin();
+    void begin(const AppState& appState);
 
     /** @brief Check if the station is connected to the WiFi network. */
     bool isConnected() const;
 
-    /** @brief Get the current time from the system clock (NTP-synced). */
-    time_t getCurrentTime() const;
+    /** @brief Loop to handle DNS requests for Captive Portal */
+    void loop();
 
-    /** @brief Check if the time has been successfully synced via NTP. */
-    bool isTimeSynced() const;
+private:
+    DNSServer dnsServer_;
 };

@@ -57,6 +57,13 @@ public:
     uint16_t wheel(uint8_t wheelPos);
 
     /**
+     * @brief Map a color index (0-6) to an RGB565 color.
+     * @param index 0=Green, 1=Red, 2=Blue, 3=Yellow, 4=Cyan, 5=Magenta, 6=White.
+     * @return 16-bit RGB565 color.
+     */
+    static uint16_t getStandardColor(int index);
+
+    /**
      * @brief Draw an animated rainbow border around the panel.
      * @param offset Animation offset for cycling colors.
      */

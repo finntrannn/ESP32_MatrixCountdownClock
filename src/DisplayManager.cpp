@@ -1,7 +1,7 @@
 /**
  * @file DisplayManager.cpp
  * @brief Implementation of HUB75 LED Matrix panel management.
- * 
+ *
  * @author finntrannn (finntrannn.id.vn)
  * @github https://github.com/finntrannn
  */
@@ -29,8 +29,9 @@ void DisplayManager::begin(int brightness)
 {
     HUB75_I2S_CFG mxconfig(Panel::kResX, Panel::kResY, Panel::kChain);
     mxconfig.double_buff = true;
-    mxconfig.latch_blanking = 2;
-
+    mxconfig.latch_blanking = 3;
+    mxconfig.i2sspeed = HUB75_I2S_CFG::HZ_10M;
+    mxconfig.clkphase = false;
     panel_ = new MatrixPanel_I2S_DMA(mxconfig);
     panel_->begin();
     panel_->setBrightness8(brightness);
@@ -61,7 +62,7 @@ void DisplayManager::flip()
     }
 }
 
-void DisplayManager::drawMiniChar(int x, int y, char c, uint16_t color)
+void IRAM_ATTR DisplayManager::drawMiniChar(int x, int y, char c, uint16_t color)
 {
     int index = -1;
     if (c >= '0' && c <= '9')
@@ -87,7 +88,7 @@ void DisplayManager::drawMiniChar(int x, int y, char c, uint16_t color)
     }
 }
 
-void DisplayManager::drawMiniString(int x, int y, const char *str, uint16_t color)
+void IRAM_ATTR DisplayManager::drawMiniString(int x, int y, const char *str, uint16_t color)
 {
     int i = 0;
     while (str[i])
@@ -97,7 +98,7 @@ void DisplayManager::drawMiniString(int x, int y, const char *str, uint16_t colo
     }
 }
 
-uint16_t DisplayManager::wheel(uint8_t wheelPos)
+uint16_t IRAM_ATTR DisplayManager::wheel(uint8_t wheelPos)
 {
     if (wheelPos < 85)
     {
@@ -139,5 +140,18 @@ void DisplayManager::drawRainbowBorder(uint16_t offset)
     {
         int idx = 158 + (30 - y);
         panel_->drawPixel(0, y, wheel(((idx * 256 / 188) + offset) & 255));
+    }
+}
+
+uint16_t DisplayManager::getStandardColor(int index) {
+    // Uses MatrixPanel color565 bit-packing: (r & 0xF8) << 8 | (g & 0xFC) << 3 | b >> 3
+    switch(index) {
+        case 0: return 0x07E0; // Green
+        case 1: return 0xF800; // Red
+        case 2: return 0x001F; // Blue
+        case 3: return 0xFFE0; // Yellow
+        case 4: return 0x07FF; // Cyan
+        case 5: return 0xF81F; // Magenta
+        default: return 0xFFFF; // White
     }
 }

@@ -8,9 +8,9 @@
 
 #include "SplashScreen.h"
 #include "Config.h"
-#include <WebServer.h>
 
-void SplashScreen::play(DisplayManager& display, WebServer* server, bool force) {
+
+void SplashScreen::play(DisplayManager& display, bool force) {
     if (!enabled_ && !force)
         return;
 
@@ -27,10 +27,6 @@ void SplashScreen::play(DisplayManager& display, WebServer* server, bool force) 
     }
 
     while ((t = millis() - startMillis) < 15000) {
-        // Keep web server responsive during animation
-        if (!force && server) {
-            server->handleClient();
-        }
 
         panel->clearScreen();
 

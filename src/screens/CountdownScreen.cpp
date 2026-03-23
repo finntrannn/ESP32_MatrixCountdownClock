@@ -1,41 +1,60 @@
 /**
  * @file CountdownScreen.cpp
  * @brief Renders the THPT QG Countdown interface.
- * 
+ *
  * @author finntrannn (finntrannn.id.vn)
  * @github https://github.com/finntrannn
  */
 
 #include "screens/CountdownScreen.h"
 #include "Config.h"
+#include "TimeManager.h"
+#include "DisplayManager.h"
 
-void CountdownScreen::draw(float dt, DisplayManager& display, NetworkManager& network, const AppState& appState) {
+void CountdownScreen::draw(float dt, DisplayManager &display, NetworkManager &network, TimeManager &timeManager, const AppState &appState)
+{
     auto *panel = display.getPanel();
 
-    // ── 1. WiFi Status Indicator (bottom-right pixel) ────────────
-    uint16_t statusColor = network.isConnected()
-                               ? panel->color565(0, 255, 0)
-                               : panel->color565(255, 128, 0);
-    panel->fillRect(62, 30, 1, 1, statusColor);
+    bool showMsg = appState.isShowMessageEnabled();
 
     // ── 2. Current Time (top-center mini clock) ──────────────────
-    time_t now = network.getCurrentTime();
-    if (network.isTimeSynced())
+    time_t now = timeManager.getCurrentTime();
+    if (timeManager.isTimeSynced())
     {
         struct tm *timeinfo = localtime(&now);
         char timeStr[6];
         sprintf(timeStr, "%02d:%02d", timeinfo->tm_hour, timeinfo->tm_min);
-        display.drawMiniString(23, 1, timeStr, panel->color565(200, 200, 200));
+        if (showMsg)
+        {
+            display.drawMiniString(23, 1, timeStr, panel->color565(200, 200, 200));
+        }
+        else
+        {
+            panel->setTextSize(1);
+            panel->setTextColor(panel->color565(200, 200, 200));
+            panel->setCursor(18, 2);
+            panel->print(timeStr);
+        }
     }
     else
     {
-        display.drawMiniString(23, 1, "--:--", panel->color565(255, 0, 0));
+        if (showMsg)
+        {
+            display.drawMiniString(23, 1, "--:--", panel->color565(255, 0, 0));
+        }
+        else
+        {
+            panel->setTextSize(1);
+            panel->setTextColor(panel->color565(255, 0, 0));
+            panel->setCursor(18, 2);
+            panel->print("--:--");
+        }
     }
 
     // ── 3. Countdown (days + HH:MM:SS) ──────────────────────────
-    time_t now2 = network.getCurrentTime();
+    time_t now2 = timeManager.getCurrentTime();
     long diff = appState.getTargetEpoch() - now2;
-    if (diff < 0 || !network.isTimeSynced())
+    if (diff < 0 || !timeManager.isTimeSynced())
         diff = 0;
 
     long days = diff / 86400;
@@ -46,50 +65,96 @@ void CountdownScreen::draw(float dt, DisplayManager& display, NetworkManager& ne
     panel->setTextSize(1);
     panel->setTextWrap(false);
 
+    int daysY = showMsg ? 8 : 13;
+    int hmsY = showMsg ? 16 : 23;
+
     // Days row
-    char dayStr[16];
-    sprintf(dayStr, "%03d NGAY", (int)days);
-    panel->setTextColor(panel->color565(255, 255, 0));
-    panel->setCursor(8, 8);
-    panel->print(dayStr);
-    // Accent mark for "NGÀY"
-    panel->drawLine(45, 5, 46, 6, panel->color565(255, 255, 0));
+    uint16_t daysColor = DisplayManager::getStandardColor(appState.getCdDaysColor());
+    panel->setTextColor(daysColor);
+    char numStr[16];
+    sprintf(numStr, "%d", (int)days);
+    int numLen = strlen(numStr);
+
+    int spacePixels = 1;
+    if (numLen == 2)
+        spacePixels = 3;
+    if (numLen == 1)
+        spacePixels = 4;
+
+    int totalW = 18 + spacePixels + numLen * 6 + spacePixels + 24;
+    int startX = (64 - totalW) / 2;
+    if (startX < 0)
+        startX = 0;
+
+    panel->setCursor(startX, daysY);
+    panel->print("CON");
+    // Accent mark for "Ò"
+    panel->drawLine(startX + 7, daysY - 3, startX + 8, daysY - 2, daysColor);
+
+    int numX = startX + 18 + spacePixels;
+    panel->setCursor(numX, daysY);
+    panel->print(numStr);
+
+    int nX = numX + numLen * 6 + spacePixels;
+    panel->setCursor(nX, daysY);
+    panel->print("NGAY");
+    // Accent mark for "À"
+    panel->drawLine(nX + 13, daysY - 3, nX + 14, daysY - 2, daysColor);
 
     // Hours:Minutes:Seconds row
-    char hmsStr[16];
-    if (appState.isShowSecondsEnabled())
-    {
-        sprintf(hmsStr, "%02d:%02d:%02d", (int)hours, (int)mins, (int)secs);
-        panel->setCursor(8, 16);
+    char hStr[8], mStr[8], sStr[8];
+    sprintf(hStr, "%02dh", (int)hours);
+    sprintf(mStr, "%02dm", (int)mins);
+    sprintf(sStr, "%02ds", (int)secs);
+
+    int spacing = 2; // 2 pixels spacing instead of 6px (full space char)
+    int totalTimeW = 18 + spacing + 18; // 00h and 00m
+    if (appState.isShowSecondsCountdownEnabled()) {
+        totalTimeW += spacing + 18; // array seconds
     }
-    else
-    {
-        sprintf(hmsStr, "%02d:%02d", (int)hours, (int)mins);
-        panel->setCursor(17, 16);
+
+    int startXTime = (64 - totalTimeW) / 2;
+    if (startXTime < 0) startXTime = 0;
+
+    uint16_t timeColor = DisplayManager::getStandardColor(appState.getCdTimeColor());
+    panel->setTextColor(timeColor);
+
+    panel->setCursor(startXTime, hmsY);
+    panel->print(hStr);
+
+    startXTime += 18 + spacing;
+    panel->setCursor(startXTime, hmsY);
+    panel->print(mStr);
+
+    if (appState.isShowSecondsCountdownEnabled()) {
+        startXTime += 18 + spacing;
+        panel->setCursor(startXTime, hmsY);
+        panel->print(sStr);
     }
-    panel->setTextColor(panel->color565(0, 255, 255));
-    panel->print(hmsStr);
 
     // ── 4. Custom Scrolling Text ─────────────────────────────────
-    panel->setTextColor(panel->color565(50, 255, 50));
-    const String &customText = appState.getCustomText();
-    int textWidth = customText.length() * 6;
-
-    if (textWidth <= Panel::kResX)
+    if (showMsg)
     {
-        int centerX = (Panel::kResX - textWidth) / 2;
-        panel->setCursor(centerX, 24);
-        panel->print(customText);
-    }
-    else
-    {
-        panel->setCursor((int)textX_, 24);
-        panel->print(customText);
+        panel->setTextColor(panel->color565(50, 255, 50));
+        const String &customText = appState.getCustomText();
+        int textWidth = customText.length() * 6;
 
-        textX_ -= (appState.getTextSpeed() * 8.0f * dt);
-        if (textX_ < -textWidth)
+        if (textWidth <= Panel::kResX)
         {
-            textX_ = static_cast<float>(Panel::kResX);
+            int centerX = (Panel::kResX - textWidth) / 2;
+            panel->setCursor(centerX, 24);
+            panel->print(customText);
+        }
+        else
+        {
+            panel->setCursor((int)textX_, 24);
+            panel->print(customText);
+
+            textX_ -= (appState.getTextSpeed() * 8.0f * dt);
+            if (textX_ < -textWidth)
+            {
+                textX_ = static_cast<float>(Panel::kResX);
+            }
         }
     }
 

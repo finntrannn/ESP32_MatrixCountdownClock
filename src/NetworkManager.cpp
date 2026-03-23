@@ -9,25 +9,21 @@
 #include "NetworkManager.h"
 #include "Config.h"
 
-void NetworkManager::begin() {
+void NetworkManager::begin(const AppState& appState) {
     WiFi.mode(WIFI_AP_STA);
-    WiFi.softAP(WiFiConfig::kAPName, WiFiConfig::kAPPassword);
-    WiFi.begin(WiFiConfig::kSSID, WiFiConfig::kPassword);
-
-    configTime(NtpConfig::kGmtOffsetSec, NtpConfig::kDaylightOffset,
-               NtpConfig::kServer1, NtpConfig::kServer2);
+    WiFi.softAP(appState.getApSSID().c_str(), appState.getApPass().c_str());
+    WiFi.begin(appState.getStaSSID().c_str(), appState.getStaPass().c_str());
 
     Serial.println("Web Server bắt đầu tại IP: 192.168.4.1");
+
+    // Start Captive Portal DNS Server (redirect all domains to 192.168.4.1)
+    dnsServer_.start(53, "*", WiFi.softAPIP());
 }
 
 bool NetworkManager::isConnected() const {
     return WiFi.status() == WL_CONNECTED;
 }
 
-time_t NetworkManager::getCurrentTime() const {
-    return time(nullptr);
-}
-
-bool NetworkManager::isTimeSynced() const {
-    return time(nullptr) > 1000000;
+void NetworkManager::loop() {
+    dnsServer_.processNextRequest();
 }
