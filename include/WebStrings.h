@@ -45,6 +45,7 @@ static constexpr const char *kGenTitle = "Cài đặt chung";
 static constexpr const char *kGenLedOn = "Bật màn hình LED";
 static constexpr const char *kGenSplashOn =
 	"Hiển thị splash screen lúc khởi động";
+static constexpr const char *kGenSplashText = "Nội dung Splash Screen (tối đa ~10 ký tự):";
 static constexpr const char *kGenWifiIcon = "Hiển thị biểu tượng WiFi";
 static constexpr const char *kGenBrightness = "Độ sáng màn hình (1 - 255):";
 static constexpr const char *kGenScreenTitle = "Chế độ màn hình hiện tại";

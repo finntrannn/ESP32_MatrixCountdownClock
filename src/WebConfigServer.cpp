@@ -365,6 +365,9 @@ function syncS(id,v){document.getElementById(id).value=v;}
 		"value='1' " +
 		String(state_->isSplashEnabled() ? "checked" : "") + "> " +
 		kGenSplashOn + "</label>";
+	html += "<label>" + String(kGenSplashText) +
+			"</label><input type='text' name='splashText' value='" +
+			state_->getSplashText() + "' maxlength='20'>";
 	html +=
 		"<label class='chk'><input type='checkbox' name='wifiIcon' value='1' " +
 		String(state_->isWifiIconEnabled() ? "checked" : "") + "> " +
@@ -610,6 +613,7 @@ void WebConfigServer::handleSave(AsyncWebServerRequest *request) {
 	state_->setSplashEnabled(hasArg("splashState") &&
 							 arg("splashState") == "1");
 	splash_->setEnabled(state_->isSplashEnabled());
+	if (hasArg("splashText")) state_->setSplashText(arg("splashText"));
 
 	if (hasArg("brightness")) {
 		state_->setBrightness(arg("brightness").toInt());

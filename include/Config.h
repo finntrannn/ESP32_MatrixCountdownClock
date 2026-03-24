@@ -33,6 +33,7 @@ namespace Defaults {
 constexpr uint32_t kTargetEpoch		 = 1782320400;	// 25/06/2026 00:00 GMT+7
 constexpr bool kLedEnabled			 = true;
 constexpr bool kSplashEnabled		 = true;
+constexpr const char *kSplashText	 = "12A6";
 constexpr bool kRainbowEnabled		 = true;
 constexpr int kTextSpeed			 = 4;	  // 1 (slow) – 10 (fast)
 constexpr int kRainbowSpeed			 = 5;	  // 1 (slow) – 10 (fast)
@@ -83,6 +84,7 @@ constexpr const char *kNamespace	= "clock_app";
 constexpr const char *kTargetEpoch	= "targetEpoch";
 constexpr const char *kLedState		= "ledState";
 constexpr const char *kSplashEn		= "splashEn";
+constexpr const char *kSplashText	= "splashTxt";
 constexpr const char *kCustomText	= "customText";
 constexpr const char *kRainbow		= "rainbow";
 constexpr const char *kTextSpeed	= "textSpd";

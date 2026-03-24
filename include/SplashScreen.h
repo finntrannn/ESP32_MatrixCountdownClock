@@ -15,9 +15,10 @@ class SplashScreen {
 	/**
 	 * @brief Play the full splash animation sequence.
 	 * @param display  Reference to the display manager (dependency injection).
+	 * @param text     The text to display on the splash screen.
 	 * @param force    If true, plays even when splash is disabled in settings.
 	 */
-	void play(DisplayManager& display, bool force = false);
+	void play(DisplayManager& display, const String& text = "12A6", bool force = false);
 
 	/** @brief Set whether the splash screen is enabled. */
 	void setEnabled(bool enabled) {

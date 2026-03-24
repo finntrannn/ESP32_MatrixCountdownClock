@@ -20,6 +20,8 @@ void AppState::load() {
 		preferences_.getBool(NvsKeys::kLedState, Defaults::kLedEnabled);
 	splashEnabled_ =
 		preferences_.getBool(NvsKeys::kSplashEn, Defaults::kSplashEnabled);
+	splashText_ =
+		preferences_.getString(NvsKeys::kSplashText, Defaults::kSplashText);
 	customText_ =
 		preferences_.getString(NvsKeys::kCustomText, Defaults::kCustomText);
 	rainbowEnabled_ =
@@ -131,6 +133,16 @@ void AppState::setLedEnabled(bool enabled) {
 void AppState::setSplashEnabled(bool enabled) {
 	splashEnabled_ = enabled;
 	preferences_.putBool(NvsKeys::kSplashEn, enabled);
+}
+
+void AppState::setSplashText(const String& text) {
+	// Limit string length to avoid running out of screen or memory
+	if (text.length() > 20) {
+		splashText_ = text.substring(0, 20);
+	} else {
+		splashText_ = text;
+	}
+	preferences_.putString(NvsKeys::kSplashText, splashText_);
 }
 
 void AppState::setRainbowEnabled(bool enabled) {

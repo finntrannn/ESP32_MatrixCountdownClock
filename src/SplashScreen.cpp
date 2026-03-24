@@ -10,12 +10,26 @@
 
 #include "Config.h"
 
-void SplashScreen::play(DisplayManager& display, bool force) {
+void SplashScreen::play(DisplayManager& display, const String& text, bool force) {
 	if (!enabled_ && !force) return;
 
 	auto* panel				  = display.getPanel();
 	unsigned long startMillis = millis();
 	unsigned long t			  = 0;
+
+	// Calculate text bounds to perfectly center it
+	int textSize = 2;
+	int16_t x1, y1;
+	uint16_t w, h;
+	panel->setTextSize(textSize);
+	panel->getTextBounds(text, 0, 0, &x1, &y1, &w, &h);
+	if (w > Panel::kResX) {
+		textSize = 1;
+		panel->setTextSize(textSize);
+		panel->getTextBounds(text, 0, 0, &x1, &y1, &w, &h);
+	}
+	int baseCx = (Panel::kResX - w) / 2;
+	int baseCy = (Panel::kResY - h) / 2;
 
 	// Initialize star field
 	Star stars[15];
@@ -25,7 +39,7 @@ void SplashScreen::play(DisplayManager& display, bool force) {
 		stars[i].speed = random(1, 4);
 	}
 
-	while ((t = millis() - startMillis) < 15000) {
+	while ((t = millis() - startMillis) < 12500) {
 		panel->clearScreen();
 
 		// -- Star field background --
@@ -39,10 +53,10 @@ void SplashScreen::play(DisplayManager& display, bool force) {
 			panel->drawPixel(stars[i].x, stars[i].y, panel->color565(b, b, b));
 		}
 
-		int cx = 9;
-		int cy = 9;
+		int cx = baseCx;
+		int cy = baseCy;
 
-		panel->setTextSize(2);
+		panel->setTextSize(textSize);
 		panel->setTextWrap(false);
 		uint16_t textColor = panel->color565(0, 255, 255);
 
@@ -68,7 +82,7 @@ void SplashScreen::play(DisplayManager& display, bool force) {
 			}
 			panel->setTextColor(textColor);
 			panel->setCursor(cx, cy);
-			panel->print("12A6");
+			panel->print(text);
 
 			if (random(0, 10) > 6) {
 				int gx = random(0, Panel::kResX);
@@ -78,50 +92,43 @@ void SplashScreen::play(DisplayManager& display, bool force) {
 								panel->color565(255, 255, 255));
 			}
 		}
-		// Phase 3: Rainbow wheel text (1500–4000ms)
-		else if (t < 4000) {
-			uint8_t wPos = ((t - 1500) / 4) & 255;
-			panel->setTextColor(display.wheel(wPos));
-			panel->setCursor(cx, cy);
-			panel->print("12A6");
-		}
-		// Phase 4: Fade out with curtain close (4000–5000ms)
-		else if (t < 5000) {
-			int timeLeft	   = 5000 - t;
+		// Phase 3: Fade out with curtain close (1500–2500ms)
+		else if (t < 2500) {
+			int timeLeft	   = 2500 - t;
 			uint8_t brightness = (timeLeft * 255) / 1000;
 			panel->setTextColor(
 				panel->color565(brightness, brightness, brightness));
 
 			panel->setCursor(cx, cy);
-			panel->print("12A6");
+			panel->print(text);
 
-			int wallHeight = ((t - 4000) * (Panel::kResY / 2)) / 1000;
+			int wallHeight = ((t - 1500) * (Panel::kResY / 2)) / 1000;
 			panel->fillRect(0, 0, Panel::kResX, wallHeight, 0);
 			panel->fillRect(0, Panel::kResY - wallHeight, Panel::kResX,
 							wallHeight, 0);
 		}
-		// Phase 5: Curtain open with gold text (5000–6000ms)
-		else if (t < 6000) {
-			int openHeight = ((t - 5000) * (Panel::kResY / 2)) / 1000;
+		// Phase 4: Curtain open with gold text (2500–3500ms)
+		else if (t < 3500) {
+			int openHeight = ((t - 2500) * (Panel::kResY / 2)) / 1000;
 
 			panel->setTextColor(panel->color565(255, 255, 0));
 			panel->setCursor(cx, cy);
-			panel->print("12A6");
+			panel->print(text);
 
 			panel->fillRect(0, 0, Panel::kResX, Panel::kResY / 2 - openHeight,
 							0);
 			panel->fillRect(0, Panel::kResY / 2 + openHeight, Panel::kResX,
 							Panel::kResY / 2 - openHeight, 0);
 		}
-		// Phase 6: Steady gold text with stars (6000–9000ms)
-		else if (t < 9000) {
+		// Phase 5: Steady gold text with stars (3500–6500ms)
+		else if (t < 6500) {
 			panel->setTextColor(panel->color565(255, 255, 0));
 			panel->setCursor(cx, cy);
-			panel->print("12A6");
+			panel->print(text);
 		}
-		// Phase 7: White flash × 6 (9000–15000ms)
+		// Phase 6: White flash × 6 (6500–12500ms)
 		else {
-			int fadeStage = (t - 9000) % 1000;
+			int fadeStage = (t - 6500) % 1000;
 
 			if (fadeStage < 300) {
 				uint8_t bright = (fadeStage * 255) / 300;

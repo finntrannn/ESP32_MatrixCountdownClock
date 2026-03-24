@@ -44,6 +44,9 @@ class AppState {
 	bool isSplashEnabled() const {
 		return splashEnabled_;
 	}
+	const String& getSplashText() const {
+		return splashText_;
+	}
 	bool isRainbowEnabled() const {
 		return rainbowEnabled_;
 	}
@@ -162,6 +165,7 @@ class AppState {
 	void setTargetEpoch(time_t epoch);
 	void setLedEnabled(bool enabled);
 	void setSplashEnabled(bool enabled);
+	void setSplashText(const String& text);
 	void setRainbowEnabled(bool enabled);
 	void setShowSecondsCountdownEnabled(bool enabled);
 	void setShowSecondsDateTimeEnabled(bool enabled);
@@ -210,6 +214,7 @@ class AppState {
 	time_t targetEpoch_		   = 0;
 	bool ledEnabled_		   = true;
 	bool splashEnabled_		   = true;
+	String splashText_		   = "12A6";
 	bool rainbowEnabled_	   = true;
 	bool showSecondsCountdown_ = true;
 	bool showSecondsDateTime_  = true;

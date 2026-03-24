@@ -54,7 +54,7 @@ void displayTask(void *pvParameters) {
 		if (dt > 0.5f) dt = 0.0f;
 
 		if (appState.consumeSplashPlayRequest()) {
-			splash.play(display, true);
+			splash.play(display, appState.getSplashText(), true);
 			lastUpdateUs = micros();
 			continue;
 		}
@@ -152,7 +152,7 @@ void setup() {
 	splash.setEnabled(appState.isSplashEnabled());
 	webConfig.begin(appState, display, splash, fireworks);
 
-	splash.play(display);
+	splash.play(display, appState.getSplashText());
 
 	xTaskCreatePinnedToCore(displayTask, "Display_Task", 8192, nullptr, 2,
 							nullptr, 1);
