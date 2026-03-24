@@ -11,7 +11,7 @@ void DHTSensor::begin(uint8_t pin) {
 	dht_ = new DHT(pin, DHT11);
 	dht_->begin();
 
-	xTaskCreatePinnedToCore(readTask, "dht_read", 2048, this, 1, nullptr, 1);
+	xTaskCreatePinnedToCore(readTask, "dht_read", 2048, this, 1, nullptr, 0);
 }
 
 void DHTSensor::readTask(void* param) {

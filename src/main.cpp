@@ -42,20 +42,20 @@ static FireworksEffect fireworks;
 static unsigned long lastAutoCycleMs = 0;
 
 void displayTask(void *pvParameters) {
-	unsigned long lastUpdate = millis();
-	int prevScreenMode		 = -1;
-	int prevFireworkMinute	 = -1;
+	unsigned long lastUpdateUs = micros();
+	int prevScreenMode		   = -1;
+	int prevFireworkMinute	   = -1;
 
 	for (;;) {
-		unsigned long nowMs = millis();
-		float dt			= (nowMs - lastUpdate) / 1000.0f;
-		lastUpdate			= nowMs;
+		unsigned long nowUs = micros();
+		float dt			= (nowUs - lastUpdateUs) / 1000000.0f;
+		lastUpdateUs		= nowUs;
 
 		if (dt > 0.5f) dt = 0.0f;
 
 		if (appState.consumeSplashPlayRequest()) {
 			splash.play(display, true);
-			lastUpdate = millis();
+			lastUpdateUs = micros();
 			continue;
 		}
 
@@ -155,7 +155,7 @@ void setup() {
 	splash.play(display);
 
 	xTaskCreatePinnedToCore(displayTask, "Display_Task", 8192, nullptr, 2,
-							nullptr, 0);
+							nullptr, 1);
 }
 
 void loop() {
