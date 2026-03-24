@@ -48,7 +48,7 @@ void DateTimeScreen::draw(float dt, DisplayManager& display, TimeManager& timeMa
         panel->print(timeStr);
 
         // Date Format Selection - Yellow color
-        char dateStr[16];
+        char dateStr[64];
         char sep = '/';
         int sepIdx = appState.getDateSeparator();
         if (sepIdx == 1) sep = '.';
@@ -56,12 +56,12 @@ void DateTimeScreen::draw(float dt, DisplayManager& display, TimeManager& timeMa
 
         if (appState.isShowYearEnabled()) {
             if (appState.isShortYearEnabled()) {
-                sprintf(dateStr, "%02d%c%02d%c%02d", timeinfo->tm_mday, sep, timeinfo->tm_mon + 1, sep, (timeinfo->tm_year + 1900) % 100);
+                snprintf(dateStr, sizeof(dateStr), "%02d%c%02d%c%02d", timeinfo->tm_mday, sep, timeinfo->tm_mon + 1, sep, (timeinfo->tm_year + 1900) % 100);
             } else {
-                sprintf(dateStr, "%02d%c%02d%c%04d", timeinfo->tm_mday, sep, timeinfo->tm_mon + 1, sep, timeinfo->tm_year + 1900);
+                snprintf(dateStr, sizeof(dateStr), "%02d%c%02d%c%04d", timeinfo->tm_mday, sep, timeinfo->tm_mon + 1, sep, timeinfo->tm_year + 1900);
             }
         } else {
-            sprintf(dateStr, "%02d%c%02d", timeinfo->tm_mday, sep, timeinfo->tm_mon + 1);
+            snprintf(dateStr, sizeof(dateStr), "%02d%c%02d", timeinfo->tm_mday, sep, timeinfo->tm_mon + 1);
         }
         
         int dateWidth = strlen(dateStr) * 6;
