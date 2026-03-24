@@ -8,10 +8,8 @@
 
 #include "screens/CountdownScreen.h"
 #include "Config.h"
-#include "TimeManager.h"
-#include "DisplayManager.h"
 
-void CountdownScreen::draw(float dt, DisplayManager &display, NetworkManager &network, TimeManager &timeManager, const AppState &appState)
+void CountdownScreen::draw(float dt, DisplayManager &display, TimeManager &timeManager, const AppState &appState)
 {
     auto *panel = display.getPanel();
 
@@ -52,8 +50,7 @@ void CountdownScreen::draw(float dt, DisplayManager &display, NetworkManager &ne
     }
 
     // ── 3. Countdown (days + HH:MM:SS) ──────────────────────────
-    time_t now2 = timeManager.getCurrentTime();
-    long diff = appState.getTargetEpoch() - now2;
+    long diff = appState.getTargetEpoch() - now;
     if (diff < 0 || !timeManager.isTimeSynced())
         diff = 0;
 

@@ -7,97 +7,113 @@
  */
 
 #include "WebConfigServer.h"
-#include "WebStrings.h"
+
 #include <Update.h>
+
+#include "WebStrings.h"
 
 static volatile bool shouldReboot_ = false;
 
-String getSlider(const String &name, int min, int max, int val)
-{
-    return "<div class='sg'>"
-           "<input type='range' id='r_" +
-           name + "' name='" + name + "' min='" + String(min) + "' max='" + String(max) + "' value='" + String(val) + "' oninput='syncS(\"n_" + name + "\", this.value)'>"
-                                                                                                                                                       "<input type='number' id='n_" +
-           name + "' min='" + String(min) + "' max='" + String(max) + "' value='" + String(val) + "' oninput='syncS(\"r_" + name + "\", this.value)'></div>";
+String getSlider(const String &name, int min, int max, int val) {
+	return "<div class='sg'>"
+		   "<input type='range' id='r_" +
+		   name + "' name='" + name + "' min='" + String(min) + "' max='" +
+		   String(max) + "' value='" + String(val) + "' oninput='syncS(\"n_" +
+		   name +
+		   "\", this.value)'>"
+		   "<input type='number' id='n_" +
+		   name + "' min='" + String(min) + "' max='" + String(max) +
+		   "' value='" + String(val) + "' oninput='syncS(\"r_" + name +
+		   "\", this.value)'></div>";
 }
 
-void WebConfigServer::begin(AppState &state, DisplayManager &display, SplashScreen &splash, FireworksEffect &fireworks)
-{
-    state_ = &state;
-    display_ = &display;
-    splash_ = &splash;
-    fireworks_ = &fireworks;
+void WebConfigServer::begin(AppState &state, DisplayManager &display,
+							SplashScreen &splash, FireworksEffect &fireworks) {
+	state_	   = &state;
+	display_   = &display;
+	splash_	   = &splash;
+	fireworks_ = &fireworks;
 
-    server_.on("/", HTTP_GET, [this](AsyncWebServerRequest *request)
-               { handleRoot(request); });
-    server_.on("/save", HTTP_POST, [this](AsyncWebServerRequest *request)
-               { handleSave(request); });
-    server_.on("/restart", HTTP_POST, [this](AsyncWebServerRequest *request)
-               { handleRestart(request); });
-    server_.on("/showsplash", HTTP_POST, [this](AsyncWebServerRequest *request)
-               { handleShowSplash(request); });
-    server_.on("/test-fireworks", HTTP_POST, [this](AsyncWebServerRequest *request)
-               { handleTestFireworks(request); });
+	server_.on("/", HTTP_GET,
+			   [this](AsyncWebServerRequest *request) { handleRoot(request); });
+	server_.on("/save", HTTP_POST,
+			   [this](AsyncWebServerRequest *request) { handleSave(request); });
+	server_.on("/restart", HTTP_POST, [this](AsyncWebServerRequest *request) {
+		handleRestart(request);
+	});
+	server_.on(
+		"/showsplash", HTTP_POST,
+		[this](AsyncWebServerRequest *request) { handleShowSplash(request); });
+	server_.on("/test-fireworks", HTTP_POST,
+			   [this](AsyncWebServerRequest *request) {
+				   handleTestFireworks(request);
+			   });
 
-    server_.on("/update", HTTP_POST, [](AsyncWebServerRequest *request)
-               {
-        shouldReboot_ = !Update.hasError();
-        AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", shouldReboot_ ? "OK" : "FAIL");
-        response->addHeader("Connection", "close");
-        request->send(response); }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final)
-               {
-        if (!index) {
-            Serial.printf("Update: %s\n", filename.c_str());
-            if (!Update.begin((ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000)) {
-                Update.printError(Serial);
-            }
-        }
-        if (!Update.hasError()) {
-            if (Update.write(data, len) != len) {
-                Update.printError(Serial);
-            }
-        }
-        if (final) {
-            if (Update.end(true)) {
-                Serial.printf("Update Success: %uB\n", index + len);
-            } else {
-                Update.printError(Serial);
-            }
-        } });
+	server_.on(
+		"/update", HTTP_POST,
+		[](AsyncWebServerRequest *request) {
+			shouldReboot_					 = !Update.hasError();
+			AsyncWebServerResponse *response = request->beginResponse(
+				200, "text/plain", shouldReboot_ ? "OK" : "FAIL");
+			response->addHeader("Connection", "close");
+			request->send(response);
+		},
+		[](AsyncWebServerRequest *request, String filename, size_t index,
+		   uint8_t *data, size_t len, bool final) {
+			if (!index) {
+				Serial.printf("Update: %s\n", filename.c_str());
+				if (!Update.begin(UPDATE_SIZE_UNKNOWN)) {
+					Update.printError(Serial);
+				}
+			}
+			if (!Update.hasError()) {
+				if (Update.write(data, len) != len) {
+					Update.printError(Serial);
+				}
+			}
+			if (final) {
+				if (Update.end(true)) {
+					Serial.printf("Update Success: %uB\n", index + len);
+				} else {
+					Update.printError(Serial);
+				}
+			}
+		});
 
-    server_.onNotFound([](AsyncWebServerRequest *request)
-                       { request->redirect("http://192.168.4.1/"); });
+	server_.onNotFound([](AsyncWebServerRequest *request) {
+		request->redirect("http://192.168.4.1/");
+	});
 
-    server_.begin();
+	server_.begin();
 }
 
-void WebConfigServer::loop()
-{
-    if (shouldReboot_)
-    {
-        shouldReboot_ = false;
-        delay(500);
-        ESP.restart();
-    }
+void WebConfigServer::loop() {
+	if (shouldReboot_) {
+		shouldReboot_ = false;
+		delay(500);
+		ESP.restart();
+	}
 }
 
-void WebConfigServer::handleRoot(AsyncWebServerRequest *request)
-{
-    using namespace WebUI;
+void WebConfigServer::handleRoot(AsyncWebServerRequest *request) {
+	using namespace WebUI;
 
-    time_t targetEpoch = state_->getTargetEpoch();
-    struct tm *tm_targ = localtime(&targetEpoch);
-    char dtStr[20];
-    sprintf(dtStr, "%04d-%02d-%02dT%02d:%02d",
-            tm_targ->tm_year + 1900, tm_targ->tm_mon + 1,
-            tm_targ->tm_mday, tm_targ->tm_hour, tm_targ->tm_min);
+	time_t targetEpoch = state_->getTargetEpoch();
+	struct tm *tm_targ = localtime(&targetEpoch);
+	char dtStr[64];
+	snprintf(dtStr, sizeof(dtStr), "%04d-%02d-%02dT%02d:%02d",
+			 tm_targ->tm_year + 1900, tm_targ->tm_mon + 1, tm_targ->tm_mday,
+			 tm_targ->tm_hour, tm_targ->tm_min);
 
-    String html;
-    html.reserve(18000);
-    html += "<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'><title>";
-    html += kPageTitle;
-    html += "</title>";
-    html += R"rawhtml(
+	String html;
+	html.reserve(20000);
+	html +=
+		"<!DOCTYPE html><html><head><meta charset='utf-8'><meta "
+		"name='viewport' content='width=device-width, initial-scale=1, "
+		"maximum-scale=1, user-scalable=no'><title>";
+	html += kPageTitle;
+	html += "</title>";
+	html += R"rawhtml(
 <style>
 *{box-sizing:border-box;}
 body{font-family:'Segoe UI',Roboto,Helvetica,sans-serif;margin:0;padding:0;background:#f0f2f5;color:#1c1e21;display:flex;height:100vh;overflow:hidden;}
@@ -131,12 +147,12 @@ body{font-family:'Segoe UI',Roboto,Helvetica,sans-serif;margin:0;padding:0;backg
 
 .section{background:#fff;padding:22px;border-radius:12px;height:fit-content;box-shadow:0 2px 8px rgba(0,0,0,.04);border:1px solid #eaeaea;}
 .section h3{margin:0 0 18px;font-size:16px;color:#1c1e21;border-bottom:2px solid #f0f2f5;padding-bottom:10px;font-weight:700;}
-input:not([type='file']):not([type='radio']):not([type='checkbox']):not([type='range']),select{box-sizing:border-box;width:100%;padding:10px 12px;margin:4px 0 16px;border-radius:8px;border:1px solid #ccd0d5;background:#fff;color:#1c1e21;font-size:15px;outline:none;transition:border .2s;}
+input:not([type='file']):not([type='radio']):not([type='checkbox']):not([type='range']),select{box-sizing:border-box;width:100%;padding:10px 8px 10px 10px;margin:4px 0 16px;border-radius:8px;border:1px solid #ccd0d5;background:#fff;color:#1c1e21;font-size:15px;outline:none;transition:border .2s;}
 input:focus,select:focus{border-color:#0056b3;}
 
 .sg{display:flex;align-items:center;gap:8px;margin:4px 0 16px;}
 .sg input[type='range']{flex:1 1 auto;min-width:60px;height:6px;margin:0;cursor:pointer;accent-color:#0056b3;}
-.sg input[type='number']{flex:0 0 50px;width:50px;margin:0;text-align:center;padding:6px 2px;font-size:13px;border-radius:6px;border:1px solid #ccd0d5;}
+.sg input[type='number']{flex:0 0 64px;width:64px;margin:0;text-align:center;padding:6px 4px;font-size:13px;border-radius:6px;border:1px solid #ccd0d5;}
 
 label{display:block;font-size:13px;color:#606770;font-weight:600;margin-bottom:4px;}
 .radio-group{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
@@ -150,16 +166,16 @@ label{display:block;font-size:13px;color:#606770;font-weight:600;margin-bottom:4
 progress{width:100%;height:18px;margin-top:8px;display:none;}
 
 /* ─── Hamburger (mobile) ─── */
-.hamburger{display:none;position:fixed;top:10px;left:10px;z-index:50;background:#0056b3;color:#fff;border:none;border-radius:8px;width:40px;height:40px;font-size:22px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.15);line-height:1;transition:opacity .2s;}
+.hamburger{display:none;background:#0056b3;color:#fff;border:none;border-radius:8px;width:40px;height:40px;flex-shrink:0;font-size:22px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.15);line-height:1;transition:opacity .2s;margin-bottom:10px;}
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:15;}
 
 @media(max-width:768px){
   .hamburger{display:block;}
   .sidebar{position:fixed;left:-300px;top:0;bottom:0;width:260px;transition:left .25s ease;z-index:30;}
   .sidebar.open{left:0;}
-  .sidebar.open~.hamburger,.hamburger.hidden{opacity:0;pointer-events:none;}
+  .sidebar.open~.overlay+.main-content .hamburger,.hamburger.hidden{opacity:0;pointer-events:none;}
   .overlay.show{display:block;}
-  .main-content{padding:60px 14px 14px;}
+  .main-content{padding:14px;}
   .top-actions{flex-wrap:wrap;gap:6px;}
   .top-actions>form,.top-actions>button{flex:1;min-width:0;}
   .btn-small{width:100%;padding:10px 6px;font-size:12px;}
@@ -213,187 +229,325 @@ function syncS(id,v){document.getElementById(id).value=v;}
 </script>
 )rawhtml";
 
-    String currentTab = request->hasParam("tab") ? request->getParam("tab")->value() : "sys";
-    String parentId = "";
-    if (currentTab == "cd" || currentTab == "sensor" || currentTab == "datetime" || currentTab == "text" || currentTab == "scr_gen")
-        parentId = "dd_disp";
+	String currentTab =
+		request->hasParam("tab") ? request->getParam("tab")->value() : "sys";
+	String parentId = "";
+	if (currentTab == "cd" || currentTab == "sensor" ||
+		currentTab == "datetime" || currentTab == "text" ||
+		currentTab == "scr_gen")
+		parentId = "dd_disp";
 
-    html += "<script>window.onload=function(){opentab('" + currentTab + "'" + (parentId.length() > 0 ? ",'" + parentId + "'" : "") + ");};</script>";
-    html += "</head><body>";
+	html += "<script>window.onload=function(){opentab('" + currentTab + "'" +
+			(parentId.length() > 0 ? ",'" + parentId + "'" : "") +
+			");};</script>";
+	html += "</head><body>";
 
-    html += "<button class='hamburger' id='hbtn' onclick='toggleMenu()'>&#9776;</button>";
-    html += "<div class='overlay' id='overlay' onclick='closeMenu()'></div>";
+	html += "<div class='overlay' id='overlay' onclick='closeMenu()'></div>";
 
-    html += "<div class='sidebar' id='sidebar'>";
-    html += "<div class='sidebar-header'><h2>";
-    html += kSidebarTitle;
-    html += "</h2></div>";
+	html += "<div class='sidebar' id='sidebar'>";
+	html += "<div class='sidebar-header'><h2>";
+	html += kSidebarTitle;
+	html += "</h2></div>";
 
-    // Dropdown: Màn Hình Hiển Thị
-    html += "<button type='button' class='dropdown-btn' onclick='toggleDropdown(this)' id='dd_disp'>";
-    html += kNavDisplay;
-    html += " <span class='dropdown-icon'>&#9660;</span></button>";
-    html += "<div class='dropdown-container'>";
-    html += "<button type='button' id='btn_scr_gen' class='tab-btn' onclick='opentab(\"scr_gen\",\"dd_disp\")'>";
-    html += kNavGeneral;
-    html += "</button>";
-    html += "<button type='button' id='btn_cd' class='tab-btn' onclick='opentab(\"cd\",\"dd_disp\")'>";
-    html += kNavCountdown;
-    html += "</button>";
-    html += "<button type='button' id='btn_sensor' class='tab-btn' onclick='opentab(\"sensor\",\"dd_disp\")'>";
-    html += kNavSensor;
-    html += "</button>";
-    html += "<button type='button' id='btn_datetime' class='tab-btn' onclick='opentab(\"datetime\",\"dd_disp\")'>";
-    html += kNavDateTime;
-    html += "</button>";
-    html += "<button type='button' id='btn_text' class='tab-btn' onclick='opentab(\"text\",\"dd_disp\")'>";
-    html += kNavText;
-    html += "</button>";
-    html += "</div>";
+	// Dropdown: Màn Hình Hiển Thị
+	html +=
+		"<button type='button' class='dropdown-btn' "
+		"onclick='toggleDropdown(this)' id='dd_disp'>";
+	html += kNavDisplay;
+	html += " <span class='dropdown-icon'>&#9660;</span></button>";
+	html += "<div class='dropdown-container'>";
+	html +=
+		"<button type='button' id='btn_scr_gen' class='tab-btn' "
+		"onclick='opentab(\"scr_gen\",\"dd_disp\")'>";
+	html += kNavGeneral;
+	html += "</button>";
+	html +=
+		"<button type='button' id='btn_cd' class='tab-btn' "
+		"onclick='opentab(\"cd\",\"dd_disp\")'>";
+	html += kNavCountdown;
+	html += "</button>";
+	html +=
+		"<button type='button' id='btn_sensor' class='tab-btn' "
+		"onclick='opentab(\"sensor\",\"dd_disp\")'>";
+	html += kNavSensor;
+	html += "</button>";
+	html +=
+		"<button type='button' id='btn_datetime' class='tab-btn' "
+		"onclick='opentab(\"datetime\",\"dd_disp\")'>";
+	html += kNavDateTime;
+	html += "</button>";
+	html +=
+		"<button type='button' id='btn_text' class='tab-btn' "
+		"onclick='opentab(\"text\",\"dd_disp\")'>";
+	html += kNavText;
+	html += "</button>";
+	html += "</div>";
 
-    // Flat: WiFi
-    html += "<button type='button' id='btn_sys' class='flat-btn' onclick='opentab(\"sys\")'>";
-    html += kNavWifi;
-    html += "</button>";
+	// Flat: WiFi
+	html +=
+		"<button type='button' id='btn_sys' class='flat-btn' "
+		"onclick='opentab(\"sys\")'>";
+	html += kNavWifi;
+	html += "</button>";
 
-    // Flat: Tự Động & Lịch
-    html += "<button type='button' id='btn_auto' class='flat-btn' onclick='opentab(\"auto\")'>";
-    html += kNavAutomation;
-    html += "</button>";
+	// Flat: Tự Động & Lịch
+	html +=
+		"<button type='button' id='btn_auto' class='flat-btn' "
+		"onclick='opentab(\"auto\")'>";
+	html += kNavAutomation;
+	html += "</button>";
 
-    // Flat: OTA
-    html += "<button type='button' id='btn_ota' class='flat-btn' onclick='opentab(\"ota\")'>";
-    html += kNavOta;
-    html += "</button>";
+	// Flat: OTA
+	html +=
+		"<button type='button' id='btn_ota' class='flat-btn' "
+		"onclick='opentab(\"ota\")'>";
+	html += kNavOta;
+	html += "</button>";
 
-    html += "</div>"; // end sidebar
+	html += "</div>";  // end sidebar
 
-    html += "<div class='main-content'>";
-    html += "<div class='top-actions'>";
-    html += "<button type='submit' form='mForm' class='btn-small' style='background:#0056b3;'>";
-    html += kBtnSave;
-    html += "</button>";
-    html += "<form action='/showsplash' method='POST' style='margin:0;'><button type='submit' class='btn-small' style='background:#f39c12;'>";
-    html += kBtnTestSplash;
-    html += "</button></form>";
-    html += "<form action='/restart' method='POST' onsubmit='return confirm(\"";
-    html += kConfirmRestart;
-    html += "\");' style='margin:0;'><button type='submit' class='btn-small' style='background:#dc3545;'>";
-    html += kBtnRestart;
-    html += "</button></form></div>";
+	html += "<div class='main-content'>";
+	html +=
+		"<button class='hamburger' id='hbtn' "
+		"onclick='toggleMenu()'>&#9776;</button>";
+	html += "<div class='top-actions'>";
+	html +=
+		"<button type='submit' form='mForm' class='btn-small' "
+		"style='background:#0056b3;'>";
+	html += kBtnSave;
+	html += "</button>";
+	html +=
+		"<form action='/showsplash' method='POST' style='margin:0;'><button "
+		"type='submit' class='btn-small' style='background:#f39c12;'>";
+	html += kBtnTestSplash;
+	html += "</button></form>";
+	html += "<form action='/restart' method='POST' onsubmit='return confirm(\"";
+	html += kConfirmRestart;
+	html +=
+		"\");' style='margin:0;'><button type='submit' class='btn-small' "
+		"style='background:#dc3545;'>";
+	html += kBtnRestart;
+	html += "</button></form></div>";
 
-    html += "<form id='mForm' action='/save' method='POST'>";
-    html += "<input type='hidden' id='activeTabInput' name='activeTab' value='sys'>";
+	html += "<form id='mForm' action='/save' method='POST'>";
+	html +=
+		"<input type='hidden' id='activeTabInput' name='activeTab' "
+		"value='sys'>";
 
-    // ─── TAB: WiFi ───────────────────────────────────────────────
-    html += "<div id='tab_sys' class='tab-content'><div class='grid'>";
-    html += "<div class='section'><h3>" + String(kWifiStaTitle) + "</h3>";
-    html += "<label>" + String(kWifiStaSsid) + "</label><input type='text' name='staSSID' value='" + state_->getStaSSID() + "' required>";
-    html += "<label>" + String(kWifiStaPass) + "</label><input type='text' name='staPass' value='" + state_->getStaPass() + "'>";
-    html += "</div>";
-    html += "<div class='section'><h3>" + String(kWifiApTitle) + "</h3>";
-    html += "<label>" + String(kWifiApSsid) + "</label><input type='text' name='apSSID' value='" + state_->getApSSID() + "' required>";
-    html += "<label>" + String(kWifiApPass) + "</label><input type='text' name='apPass' value='" + state_->getApPass() + "' required>";
-    html += "</div></div></div>";
+	// ─── TAB: WiFi ───────────────────────────────────────────────
+	html += "<div id='tab_sys' class='tab-content'><div class='grid'>";
+	html += "<div class='section'><h3>" + String(kWifiStaTitle) + "</h3>";
+	html += "<label>" + String(kWifiStaSsid) +
+			"</label><input type='text' name='staSSID' value='" +
+			state_->getStaSSID() + "' required>";
+	html += "<label>" + String(kWifiStaPass) +
+			"</label><input type='text' name='staPass' value='" +
+			state_->getStaPass() + "'>";
+	html += "</div>";
+	html += "<div class='section'><h3>" + String(kWifiApTitle) + "</h3>";
+	html += "<label>" + String(kWifiApSsid) +
+			"</label><input type='text' name='apSSID' value='" +
+			state_->getApSSID() + "' required>";
+	html += "<label>" + String(kWifiApPass) +
+			"</label><input type='text' name='apPass' value='" +
+			state_->getApPass() + "' required>";
+	html += "</div></div></div>";
 
-    // ─── TAB: General ────────────────────────────────────────────
-    html += "<div id='tab_scr_gen' class='tab-content'><div class='grid'>";
-    html += "<div class='section'><h3>" + String(kGenTitle) + "</h3>";
-    html += "<label class='chk'><input type='checkbox' name='ledState' value='1' " + String(state_->isLedEnabled() ? "checked" : "") + "> " + kGenLedOn + "</label>";
-    html += "<label class='chk'><input type='checkbox' name='splashState' value='1' " + String(state_->isSplashEnabled() ? "checked" : "") + "> " + kGenSplashOn + "</label>";
-    html += "<label class='chk'><input type='checkbox' name='wifiIcon' value='1' " + String(state_->isWifiIconEnabled() ? "checked" : "") + "> " + kGenWifiIcon + "</label>";
-    html += "<label>" + String(kGenBrightness) + "</label>" + getSlider("brightness", 1, 255, state_->getBrightness());
-    html += "</div>";
-    html += "<div class='section'><h3>" + String(kGenScreenTitle) + "</h3>";
-    html += "<span class='note'>" + String(kGenScreenNote) + "</span>";
-    html += "<div class='radio-group'>";
-    for (int i = 0; i < 4; i++)
-    {
-        const char *labels[] = {kScrCountdown, kScrSensor, kScrDateTime, kScrText};
-        html += "<label data-rn='mode' id='lbl_mode_" + String(i) + "' class='" + String(state_->getScreenMode() == i ? "selected" : "") + "' onclick='selRadio(\"mode\"," + String(i) + ")'><input type='radio' name='screenMode' value='" + String(i) + "' " + (state_->getScreenMode() == i ? "checked" : "") + "> " + labels[i] + "</label>";
-    }
-    html += "</div></div></div></div>";
+	// ─── TAB: General ────────────────────────────────────────────
+	html += "<div id='tab_scr_gen' class='tab-content'><div class='grid'>";
+	html += "<div class='section'><h3>" + String(kGenTitle) + "</h3>";
+	html +=
+		"<label class='chk'><input type='checkbox' name='ledState' value='1' " +
+		String(state_->isLedEnabled() ? "checked" : "") + "> " + kGenLedOn +
+		"</label>";
+	html +=
+		"<label class='chk'><input type='checkbox' name='splashState' "
+		"value='1' " +
+		String(state_->isSplashEnabled() ? "checked" : "") + "> " +
+		kGenSplashOn + "</label>";
+	html +=
+		"<label class='chk'><input type='checkbox' name='wifiIcon' value='1' " +
+		String(state_->isWifiIconEnabled() ? "checked" : "") + "> " +
+		kGenWifiIcon + "</label>";
+	html += "<label>" + String(kGenBrightness) + "</label>" +
+			getSlider("brightness", 1, 255, state_->getBrightness());
+	html += "</div>";
+	html += "<div class='section'><h3>" + String(kGenScreenTitle) + "</h3>";
+	html += "<span class='note'>" + String(kGenScreenNote) + "</span>";
+	html += "<div class='radio-group'>";
+	for (int i = 0; i < 4; i++) {
+		const char *labels[] = {kScrCountdown, kScrSensor, kScrDateTime,
+								kScrText};
+		html += "<label data-rn='mode' id='lbl_mode_" + String(i) +
+				"' class='" +
+				String(state_->getScreenMode() == i ? "selected" : "") +
+				"' onclick='selRadio(\"mode\"," + String(i) +
+				")'><input type='radio' name='screenMode' value='" + String(i) +
+				"' " + (state_->getScreenMode() == i ? "checked" : "") + "> " +
+				labels[i] + "</label>";
+	}
+	html += "</div></div></div></div>";
 
-    // ─── TAB: Countdown ──────────────────────────────────────────
-    html += "<div id='tab_cd' class='tab-content'><div class='grid'>";
-    html += "<div class='section'><h3>" + String(kCdTitle) + "</h3>";
-    html += "<label class='chk'><input type='checkbox' name='showSecCD' value='1' " + String(state_->isShowSecondsCountdownEnabled() ? "checked" : "") + "> " + kCdShowSec + "</label>";
-    html += "<label class='chk'><input type='checkbox' name='showMessage' value='1' " + String(state_->isShowMessageEnabled() ? "checked" : "") + "> " + kCdShowMsg + "</label>";
-    html += "<label class='chk'><input type='checkbox' name='rainbowState' value='1' " + String(state_->isRainbowEnabled() ? "checked" : "") + "> " + kCdRainbow + "</label>";
-    html += "<label>" + String(kCdTarget) + "</label><input type='datetime-local' name='datetime' value='" + String(dtStr) + "' required>";
-    html += "<label>" + String(kCdMessage) + "</label><input type='text' name='customText' value='" + state_->getCustomText() + "'>";
-    html += "<label>" + String(kCdTextSpeed) + "</label>" + getSlider("textSpeed", 1, 10, state_->getTextSpeed());
-    html += "<label>" + String(kCdRainbowSpeed) + "</label>" + getSlider("rainbowSpeed", 1, 10, state_->getRainbowSpeed());
-    html += "</div>";
-    html += "<div class='section'><h3>" + String(kCdColorTitle) + "</h3>";
-    html += "<label>" + String(kCdDaysColor) + "</label><select name='cdDaysClr'>";
-    for (int i = 0; i < 7; i++)
-        html += "<option value='" + String(i) + "'" + String(state_->getCdDaysColor() == i ? " selected" : "") + ">" + kColors[i] + "</option>";
-    html += "</select>";
-    html += "<label>" + String(kCdTimeColor) + "</label><select name='cdTimeClr'>";
-    for (int i = 0; i < 7; i++)
-        html += "<option value='" + String(i) + "'" + String(state_->getCdTimeColor() == i ? " selected" : "") + ">" + kColors[i] + "</option>";
-    html += "</select></div></div></div>";
+	// ─── TAB: Countdown ──────────────────────────────────────────
+	html += "<div id='tab_cd' class='tab-content'><div class='grid'>";
+	html += "<div class='section'><h3>" + String(kCdTitle) + "</h3>";
+	html +=
+		"<label class='chk'><input type='checkbox' name='showSecCD' "
+		"value='1' " +
+		String(state_->isShowSecondsCountdownEnabled() ? "checked" : "") +
+		"> " + kCdShowSec + "</label>";
+	html +=
+		"<label class='chk'><input type='checkbox' name='showMessage' "
+		"value='1' " +
+		String(state_->isShowMessageEnabled() ? "checked" : "") + "> " +
+		kCdShowMsg + "</label>";
+	html +=
+		"<label class='chk'><input type='checkbox' name='rainbowState' "
+		"value='1' " +
+		String(state_->isRainbowEnabled() ? "checked" : "") + "> " +
+		kCdRainbow + "</label>";
+	html += "<label>" + String(kCdTarget) +
+			"</label><input type='datetime-local' name='datetime' value='" +
+			String(dtStr) + "' required>";
+	html += "<label>" + String(kCdMessage) +
+			"</label><input type='text' name='customText' value='" +
+			state_->getCustomText() + "'>";
+	html += "<label>" + String(kCdTextSpeed) + "</label>" +
+			getSlider("textSpeed", 1, 10, state_->getTextSpeed());
+	html += "<label>" + String(kCdRainbowSpeed) + "</label>" +
+			getSlider("rainbowSpeed", 1, 10, state_->getRainbowSpeed());
+	html += "</div>";
+	html += "<div class='section'><h3>" + String(kCdColorTitle) + "</h3>";
+	html +=
+		"<label>" + String(kCdDaysColor) + "</label><select name='cdDaysClr'>";
+	for (int i = 0; i < 7; i++)
+		html += "<option value='" + String(i) + "'" +
+				String(state_->getCdDaysColor() == i ? " selected" : "") + ">" +
+				kColors[i] + "</option>";
+	html += "</select>";
+	html +=
+		"<label>" + String(kCdTimeColor) + "</label><select name='cdTimeClr'>";
+	for (int i = 0; i < 7; i++)
+		html += "<option value='" + String(i) + "'" +
+				String(state_->getCdTimeColor() == i ? " selected" : "") + ">" +
+				kColors[i] + "</option>";
+	html += "</select></div></div></div>";
 
-    // ─── TAB: Sensor ─────────────────────────────────────────────
-    html += "<div id='tab_sensor' class='tab-content'><div class='grid'>";
-    html += "<div class='section'><h3>" + String(kSenTitle) + "</h3>";
-    html += "<label class='chk'><input type='checkbox' name='sensorBg' value='1' " + String(state_->isSensorBgEnabled() ? "checked" : "") + "> " + kSenBg + "</label>";
-    html += "</div></div></div>";
+	// ─── TAB: Sensor ─────────────────────────────────────────────
+	html += "<div id='tab_sensor' class='tab-content'><div class='grid'>";
+	html += "<div class='section'><h3>" + String(kSenTitle) + "</h3>";
+	html +=
+		"<label class='chk'><input type='checkbox' name='sensorBg' value='1' " +
+		String(state_->isSensorBgEnabled() ? "checked" : "") + "> " + kSenBg +
+		"</label>";
+	html += "</div></div></div>";
 
-    // ─── TAB: DateTime ───────────────────────────────────────────
-    html += "<div id='tab_datetime' class='tab-content'><div class='grid'>";
-    html += "<div class='section'><h3>" + String(kDtTitle) + "</h3>";
-    html += "<label class='chk'><input type='checkbox' name='showYear' value='1' " + String(state_->isShowYearEnabled() ? "checked" : "") + "> " + kDtShowYear + "</label>";
-    html += "<label class='chk'><input type='checkbox' name='shortYear' value='1' " + String(state_->isShortYearEnabled() ? "checked" : "") + "> " + kDtShortYear + "</label>";
-    html += "<label class='chk'><input type='checkbox' name='showSecDT' value='1' " + String(state_->isShowSecondsDateTimeEnabled() ? "checked" : "") + "> " + kDtShowSec + "</label>";
-    html += "<label>" + String(kDtSeparator) + "</label><select name='dateSep'>";
-    html += "<option value='0' " + String(state_->getDateSeparator() == 0 ? "selected" : "") + ">" + kDtSepSlash + "</option>";
-    html += "<option value='1' " + String(state_->getDateSeparator() == 1 ? "selected" : "") + ">" + kDtSepDot + "</option>";
-    html += "<option value='2' " + String(state_->getDateSeparator() == 2 ? "selected" : "") + ">" + kDtSepDash + "</option>";
-    html += "</select></div></div></div>";
+	// ─── TAB: DateTime ───────────────────────────────────────────
+	html += "<div id='tab_datetime' class='tab-content'><div class='grid'>";
+	html += "<div class='section'><h3>" + String(kDtTitle) + "</h3>";
+	html +=
+		"<label class='chk'><input type='checkbox' name='showYear' value='1' " +
+		String(state_->isShowYearEnabled() ? "checked" : "") + "> " +
+		kDtShowYear + "</label>";
+	html +=
+		"<label class='chk'><input type='checkbox' name='shortYear' "
+		"value='1' " +
+		String(state_->isShortYearEnabled() ? "checked" : "") + "> " +
+		kDtShortYear + "</label>";
+	html +=
+		"<label class='chk'><input type='checkbox' name='showSecDT' "
+		"value='1' " +
+		String(state_->isShowSecondsDateTimeEnabled() ? "checked" : "") + "> " +
+		kDtShowSec + "</label>";
+	html +=
+		"<label>" + String(kDtSeparator) + "</label><select name='dateSep'>";
+	html += "<option value='0' " +
+			String(state_->getDateSeparator() == 0 ? "selected" : "") + ">" +
+			kDtSepSlash + "</option>";
+	html += "<option value='1' " +
+			String(state_->getDateSeparator() == 1 ? "selected" : "") + ">" +
+			kDtSepDot + "</option>";
+	html += "<option value='2' " +
+			String(state_->getDateSeparator() == 2 ? "selected" : "") + ">" +
+			kDtSepDash + "</option>";
+	html += "</select></div></div></div>";
 
-    // ─── TAB: Text ───────────────────────────────────────────────
-    html += "<div id='tab_text' class='tab-content'><div class='grid'>";
-    html += "<div class='section'><h3>" + String(kTxtTitle) + "</h3>";
-    html += "<label class='chk'><input type='checkbox' name='txtScroll' value='1' " + String(state_->isTextPanelScrollEnabled() ? "checked" : "") + "> " + kTxtScroll + "</label>";
-    html += "<label>" + String(kTxtContent) + "</label><input type='text' name='txtContent' value='" + state_->getTextPanelContent() + "'>";
-    html += "<label>" + String(kTxtSpeed) + "</label>" + getSlider("txtSpeed", 1, 10, state_->getTextPanelSpeed());
-    html += "<label>" + String(kTxtColor) + "</label><select name='txtColor'>";
-    for (int i = 0; i < 7; i++)
-        html += "<option value='" + String(i) + "'" + (state_->getTextPanelColor() == i ? " selected" : "") + ">" + kColors[i] + "</option>";
-    html += "</select></div></div></div>";
+	// ─── TAB: Text ───────────────────────────────────────────────
+	html += "<div id='tab_text' class='tab-content'><div class='grid'>";
+	html += "<div class='section'><h3>" + String(kTxtTitle) + "</h3>";
+	html +=
+		"<label class='chk'><input type='checkbox' name='txtScroll' "
+		"value='1' " +
+		String(state_->isTextPanelScrollEnabled() ? "checked" : "") + "> " +
+		kTxtScroll + "</label>";
+	html += "<label>" + String(kTxtContent) +
+			"</label><input type='text' name='txtContent' value='" +
+			state_->getTextPanelContent() + "'>";
+	html += "<label>" + String(kTxtSpeed) + "</label>" +
+			getSlider("txtSpeed", 1, 10, state_->getTextPanelSpeed());
+	html += "<label>" + String(kTxtColor) + "</label><select name='txtColor'>";
+	for (int i = 0; i < 7; i++)
+		html += "<option value='" + String(i) + "'" +
+				(state_->getTextPanelColor() == i ? " selected" : "") + ">" +
+				kColors[i] + "</option>";
+	html += "</select></div></div></div>";
 
-    // ─── TAB: Auto ───────────────────────────────────────────────
-    html += "<div id='tab_auto' class='tab-content'><div class='grid'>";
-    html += "<div class='section'><h3>" + String(kAutoTitle) + "</h3>";
-    html += "<label class='chk'><input type='checkbox' name='autoCycle' value='1' " + String(state_->isAutoCycleEnabled() ? "checked" : "") + "> " + kAutoEnable + "</label>";
-    html += "<span class='note'>" + String(kAutoNote) + "</span>";
-    html += "<label>" + String(kAutoSeqLabel) + "</label><input type='text' name='cycleSeq' value='" + state_->getCycleSequence() + "' placeholder='0,1,2,3'>";
-    html += "<h3>" + String(kAutoTimersTitle) + "</h3>";
-    html += "<label>" + String(kScrCountdown) + ":</label>" + getSlider("timer0", 0, 120, state_->getTimer0_Countdown());
-    html += "<label>" + String(kScrSensor) + ":</label>" + getSlider("timer1", 0, 120, state_->getTimer1_Sensor());
-    html += "<label>" + String(kScrDateTime) + ":</label>" + getSlider("timer2", 0, 120, state_->getTimer2_DateTime());
-    html += "<label>" + String(kScrText) + ":</label>" + getSlider("timer3", 0, 120, state_->getTimer3_Text());
-    html += "</div>";
+	// ─── TAB: Auto ───────────────────────────────────────────────
+	html += "<div id='tab_auto' class='tab-content'><div class='grid'>";
+	html += "<div class='section'><h3>" + String(kAutoTitle) + "</h3>";
+	html +=
+		"<label class='chk'><input type='checkbox' name='autoCycle' "
+		"value='1' " +
+		String(state_->isAutoCycleEnabled() ? "checked" : "") + "> " +
+		kAutoEnable + "</label>";
+	html += "<span class='note'>" + String(kAutoNote) + "</span>";
+	html += "<label>" + String(kAutoSeqLabel) +
+			"</label><input type='text' name='cycleSeq' value='" +
+			state_->getCycleSequence() + "' placeholder='0,1,2,3'>";
+	html += "<h3>" + String(kAutoTimersTitle) + "</h3>";
+	html += "<label>" + String(kScrCountdown) + ":</label>" +
+			getSlider("timer0", 0, 120, state_->getTimer0_Countdown());
+	html += "<label>" + String(kScrSensor) + ":</label>" +
+			getSlider("timer1", 0, 120, state_->getTimer1_Sensor());
+	html += "<label>" + String(kScrDateTime) + ":</label>" +
+			getSlider("timer2", 0, 120, state_->getTimer2_DateTime());
+	html += "<label>" + String(kScrText) + ":</label>" +
+			getSlider("timer3", 0, 120, state_->getTimer3_Text());
+	html += "</div>";
 
-    html += "<div class='section'><h3>" + String(kFwTitle) + "</h3>";
-    html += "<span class='note'>" + String(kFwNote) + "</span>";
-    html += "<label>" + String(kFwLabel) + "</label><input type='text' name='fwScheds' value='" + state_->getFwSchedules() + "' placeholder='10:35,5;08:40,10'>";
-    html += "<button type='button' onclick='fetch(\"/test-fireworks\",{method:\"POST\"})' class='btn-small' style='background:#f39c12;margin-top:12px;width:100%;'>" + String(kFwTestBtn) + "</button>";
-    html += "</div></div></div>";
+	html += "<div class='section'><h3>" + String(kFwTitle) + "</h3>";
+	html += "<span class='note'>" + String(kFwNote) + "</span>";
+	html += "<label>" + String(kFwLabel) +
+			"</label><input type='text' name='fwScheds' value='" +
+			state_->getFwSchedules() + "' placeholder='10:35,5;08:40,10'>";
+	html +=
+		"<button type='button' "
+		"onclick='fetch(\"/test-fireworks\",{method:\"POST\"})' "
+		"class='btn-small' "
+		"style='background:#f39c12;margin-top:12px;width:100%;'>" +
+		String(kFwTestBtn) + "</button>";
+	html += "</div></div></div>";
 
-    // ─── TAB: OTA ────────────────────────────────────────────────
-    html += "<div id='tab_ota' class='tab-content'><div class='grid'>";
-    html += "<div class='section'><h3>" + String(kOtaTitle) + "</h3>";
-    html += "<span class='note'>" + String(kOtaNote) + "</span>";
-    html += "<div style='display:flex;flex-direction:column;gap:12px;margin-top:16px;'>";
-    html += "<input type='file' id='firmwareInput' accept='.bin' style='padding:10px;border:1px dashed #0056b3;border-radius:8px;'>";
-    html += "<button type='button' onclick='uploadFirmware()' class='btn-small' style='background:#28a745;width:fit-content;'>" + String(kOtaBtn) + "</button>";
-    html += "<progress id='uploadProgress' max='100' value='0'></progress>";
-    html += "<span id='statusMsg' style='font-weight:bold;color:#0056b3;'></span></div>";
+	// ─── TAB: OTA ────────────────────────────────────────────────
+	html += "<div id='tab_ota' class='tab-content'><div class='grid'>";
+	html += "<div class='section'><h3>" + String(kOtaTitle) + "</h3>";
+	html += "<span class='note'>" + String(kOtaNote) + "</span>";
+	html +=
+		"<div "
+		"style='display:flex;flex-direction:column;gap:12px;margin-top:16px;'>";
+	html +=
+		"<input type='file' id='firmwareInput' accept='.bin' "
+		"style='padding:10px;border:1px dashed #0056b3;border-radius:8px;'>";
+	html +=
+		"<button type='button' onclick='uploadFirmware()' class='btn-small' "
+		"style='background:#28a745;width:fit-content;'>" +
+		String(kOtaBtn) + "</button>";
+	html += "<progress id='uploadProgress' max='100' value='0'></progress>";
+	html +=
+		"<span id='statusMsg' "
+		"style='font-weight:bold;color:#0056b3;'></span></div>";
 
-    html += R"rawjavascript(
+	html += R"rawjavascript(
 <script>
 function uploadFirmware(){
 var f=document.getElementById('firmwareInput');
@@ -402,171 +556,162 @@ var d=new FormData();d.append('update',f.files[0]);
 var x=new XMLHttpRequest(),p=document.getElementById('uploadProgress'),s=document.getElementById('statusMsg');
 p.style.display='block';
 x.upload.addEventListener('progress',function(e){var pct=Math.round(e.loaded/e.total*100);p.value=pct;s.innerText=')rawjavascript";
-    html += kOtaUploading;
-    html += R"rawjavascript('+pct+'%';});
+	html += kOtaUploading;
+	html += R"rawjavascript('+pct+'%';});
 x.addEventListener('load',function(){if(x.status===200){s.innerText=')rawjavascript";
-    html += kOtaSuccess;
-    html += R"rawjavascript(';s.style.color='green';setTimeout(function(){window.location.reload();},8000);}else{s.innerText='Error '+x.status;s.style.color='red';}});
+	html += kOtaSuccess;
+	html +=
+		R"rawjavascript(';s.style.color='green';setTimeout(function(){window.location.reload();},8000);}else{s.innerText='Error '+x.status;s.style.color='red';}});
 x.addEventListener('error',function(){s.innerText=')rawjavascript";
-    html += kOtaError;
-    html += R"rawjavascript(';s.style.color='red';});
+	html += kOtaError;
+	html += R"rawjavascript(';s.style.color='red';});
 x.open('POST','/update');x.send(d);}
 </script>
 )rawjavascript";
 
-    html += "</div></div></div>";
-    html += "</form></div></div></body></html>";
-    request->send(200, "text/html", html);
+	html += "</div></div></div>";
+	html += "</form></div></div></body></html>";
+	request->send(200, "text/html", html);
 }
 
-void WebConfigServer::handleSave(AsyncWebServerRequest *request)
-{
-    auto hasArg = [&](const String &n)
-    { return request->hasParam(n, true) || request->hasParam(n, false); };
-    auto arg = [&](const String &n)
-    {
-        if (request->hasParam(n, true))
-            return request->getParam(n, true)->value();
-        if (request->hasParam(n, false))
-            return request->getParam(n, false)->value();
-        return String("");
-    };
+void WebConfigServer::handleSave(AsyncWebServerRequest *request) {
+	auto hasArg = [&](const String &n) {
+		return request->hasParam(n, true) || request->hasParam(n, false);
+	};
+	auto arg = [&](const String &n) {
+		if (request->hasParam(n, true))
+			return request->getParam(n, true)->value();
+		if (request->hasParam(n, false))
+			return request->getParam(n, false)->value();
+		return String("");
+	};
 
-    if (hasArg("datetime"))
-    {
-        String dt = arg("datetime");
-        int yr, mo, da, hr, mn;
-        if (sscanf(dt.c_str(), "%d-%d-%dT%d:%d", &yr, &mo, &da, &hr, &mn) == 5)
-        {
-            struct tm tm_target = {0};
-            tm_target.tm_year = yr - 1900;
-            tm_target.tm_mon = mo - 1;
-            tm_target.tm_mday = da;
-            tm_target.tm_hour = hr;
-            tm_target.tm_min = mn;
-            tm_target.tm_sec = 0;
-            tm_target.tm_isdst = -1;
-            time_t newEpoch = mktime(&tm_target);
-            if (newEpoch != -1)
-                state_->setTargetEpoch(newEpoch);
-        }
-    }
+	state_->lock();
 
-    state_->lock();
+	if (hasArg("datetime")) {
+		String dt = arg("datetime");
+		int yr, mo, da, hr, mn;
+		if (sscanf(dt.c_str(), "%d-%d-%dT%d:%d", &yr, &mo, &da, &hr, &mn) ==
+			5) {
+			struct tm tm_target = {0};
+			tm_target.tm_year	= yr - 1900;
+			tm_target.tm_mon	= mo - 1;
+			tm_target.tm_mday	= da;
+			tm_target.tm_hour	= hr;
+			tm_target.tm_min	= mn;
+			tm_target.tm_sec	= 0;
+			tm_target.tm_isdst	= -1;
+			time_t newEpoch		= mktime(&tm_target);
+			if (newEpoch != -1) state_->setTargetEpoch(newEpoch);
+		}
+	}
 
-    state_->setLedEnabled(hasArg("ledState") && arg("ledState") == "1");
-    state_->setSplashEnabled(hasArg("splashState") && arg("splashState") == "1");
-    splash_->setEnabled(state_->isSplashEnabled());
+	state_->setLedEnabled(hasArg("ledState") && arg("ledState") == "1");
+	state_->setSplashEnabled(hasArg("splashState") &&
+							 arg("splashState") == "1");
+	splash_->setEnabled(state_->isSplashEnabled());
 
-    if (hasArg("brightness"))
-    {
-        state_->setBrightness(arg("brightness").toInt());
-        display_->setBrightness(state_->getBrightness());
-    }
+	if (hasArg("brightness")) {
+		state_->setBrightness(arg("brightness").toInt());
+		display_->setBrightness(state_->getBrightness());
+	}
 
-    if (hasArg("screenMode"))
-        state_->setScreenMode(arg("screenMode").toInt());
+	if (hasArg("screenMode")) state_->setScreenMode(arg("screenMode").toInt());
 
-    if (hasArg("apSSID"))
-        state_->setApSSID(arg("apSSID"));
-    if (hasArg("apPass"))
-        state_->setApPass(arg("apPass"));
-    if (hasArg("staSSID"))
-        state_->setStaSSID(arg("staSSID"));
-    if (hasArg("staPass"))
-        state_->setStaPass(arg("staPass"));
+	if (hasArg("apSSID")) state_->setApSSID(arg("apSSID"));
+	if (hasArg("apPass")) state_->setApPass(arg("apPass"));
+	if (hasArg("staSSID")) state_->setStaSSID(arg("staSSID"));
+	if (hasArg("staPass")) state_->setStaPass(arg("staPass"));
 
-    state_->setShowYearEnabled(hasArg("showYear") && arg("showYear") == "1");
-    state_->setShortYearEnabled(hasArg("shortYear") && arg("shortYear") == "1");
-    if (hasArg("dateSep"))
-        state_->setDateSeparator(arg("dateSep").toInt());
-    state_->setShowSecondsDateTimeEnabled(hasArg("showSecDT") && arg("showSecDT") == "1");
+	state_->setShowYearEnabled(hasArg("showYear") && arg("showYear") == "1");
+	state_->setShortYearEnabled(hasArg("shortYear") && arg("shortYear") == "1");
+	if (hasArg("dateSep")) state_->setDateSeparator(arg("dateSep").toInt());
+	state_->setShowSecondsDateTimeEnabled(hasArg("showSecDT") &&
+										  arg("showSecDT") == "1");
 
-    if (hasArg("customText"))
-        state_->setCustomText(arg("customText"));
+	if (hasArg("customText")) state_->setCustomText(arg("customText"));
 
-    state_->setShowSecondsCountdownEnabled(hasArg("showSecCD") && arg("showSecCD") == "1");
-    state_->setShowMessageEnabled(hasArg("showMessage") && arg("showMessage") == "1");
-    state_->setRainbowEnabled(hasArg("rainbowState") && arg("rainbowState") == "1");
+	state_->setShowSecondsCountdownEnabled(hasArg("showSecCD") &&
+										   arg("showSecCD") == "1");
+	state_->setShowMessageEnabled(hasArg("showMessage") &&
+								  arg("showMessage") == "1");
+	state_->setRainbowEnabled(hasArg("rainbowState") &&
+							  arg("rainbowState") == "1");
 
-    if (hasArg("cdDaysClr"))
-        state_->setCdDaysColor(arg("cdDaysClr").toInt());
-    if (hasArg("cdTimeClr"))
-        state_->setCdTimeColor(arg("cdTimeClr").toInt());
+	if (hasArg("cdDaysClr")) state_->setCdDaysColor(arg("cdDaysClr").toInt());
+	if (hasArg("cdTimeClr")) state_->setCdTimeColor(arg("cdTimeClr").toInt());
 
-    if (hasArg("textSpeed"))
-        state_->setTextSpeed(arg("textSpeed").toInt());
-    if (hasArg("rainbowSpeed"))
-        state_->setRainbowSpeed(arg("rainbowSpeed").toInt());
+	if (hasArg("textSpeed")) state_->setTextSpeed(arg("textSpeed").toInt());
+	if (hasArg("rainbowSpeed"))
+		state_->setRainbowSpeed(arg("rainbowSpeed").toInt());
 
-    state_->setSensorBgEnabled(hasArg("sensorBg") && arg("sensorBg") == "1");
-    state_->setWifiIconEnabled(hasArg("wifiIcon") && arg("wifiIcon") == "1");
+	state_->setSensorBgEnabled(hasArg("sensorBg") && arg("sensorBg") == "1");
+	state_->setWifiIconEnabled(hasArg("wifiIcon") && arg("wifiIcon") == "1");
 
-    if (hasArg("txtContent"))
-        state_->setTextPanelContent(arg("txtContent"));
-    if (hasArg("txtSpeed"))
-        state_->setTextPanelSpeed(arg("txtSpeed").toInt());
-    if (hasArg("txtColor"))
-        state_->setTextPanelColor(arg("txtColor").toInt());
-    state_->setTextPanelScrollEnabled(hasArg("txtScroll") && arg("txtScroll") == "1");
+	if (hasArg("txtContent")) state_->setTextPanelContent(arg("txtContent"));
+	if (hasArg("txtSpeed")) state_->setTextPanelSpeed(arg("txtSpeed").toInt());
+	if (hasArg("txtColor")) state_->setTextPanelColor(arg("txtColor").toInt());
+	state_->setTextPanelScrollEnabled(hasArg("txtScroll") &&
+									  arg("txtScroll") == "1");
 
-    state_->setAutoCycleEnabled(hasArg("autoCycle") && arg("autoCycle") == "1");
-    if (hasArg("timer0"))
-        state_->setTimer0_Countdown(arg("timer0").toInt());
-    if (hasArg("timer1"))
-        state_->setTimer1_Sensor(arg("timer1").toInt());
-    if (hasArg("timer2"))
-        state_->setTimer2_DateTime(arg("timer2").toInt());
-    if (hasArg("timer3"))
-        state_->setTimer3_Text(arg("timer3").toInt());
-    if (hasArg("cycleSeq"))
-        state_->setCycleSequence(arg("cycleSeq"));
-    if (hasArg("fwScheds"))
-        state_->setFwSchedules(arg("fwScheds"));
+	state_->setAutoCycleEnabled(hasArg("autoCycle") && arg("autoCycle") == "1");
+	if (hasArg("timer0")) state_->setTimer0_Countdown(arg("timer0").toInt());
+	if (hasArg("timer1")) state_->setTimer1_Sensor(arg("timer1").toInt());
+	if (hasArg("timer2")) state_->setTimer2_DateTime(arg("timer2").toInt());
+	if (hasArg("timer3")) state_->setTimer3_Text(arg("timer3").toInt());
+	if (hasArg("cycleSeq")) state_->setCycleSequence(arg("cycleSeq"));
+	if (hasArg("fwScheds")) state_->setFwSchedules(arg("fwScheds"));
 
-    state_->unlock();
+	state_->unlock();
 
-    String activeTab = "sys";
-    if (hasArg("activeTab"))
-        activeTab = arg("activeTab");
+	String activeTab = "sys";
+	if (hasArg("activeTab")) activeTab = arg("activeTab");
 
-    AsyncWebServerResponse *response = request->beginResponse(302, "text/plain", "Saved");
-    response->addHeader("Location", "/?tab=" + activeTab);
-    request->send(response);
+	AsyncWebServerResponse *response =
+		request->beginResponse(302, "text/plain", "Saved");
+	response->addHeader("Location", "/?tab=" + activeTab);
+	request->send(response);
 }
 
-void WebConfigServer::handleRestart(AsyncWebServerRequest *request)
-{
-    using namespace WebUI;
-    request->send(200, "text/html",
-                  "<html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>"
-                  "</head><body style='background:#f0f2f5;color:#1c1e21;text-align:center;font-family:Arial;padding-top:50px;'>"
-                  "<h2>" +
-                      String(kRestartMsg) + "</h2>"
-                                            "<p>" +
-                      String(kRestartNote) + "</p>"
-                                             "</body></html>");
-    delay(1000);
-    ESP.restart();
+void WebConfigServer::handleRestart(AsyncWebServerRequest *request) {
+	using namespace WebUI;
+	request->send(200, "text/html",
+				  "<html><head><meta charset='utf-8'><meta name='viewport' "
+				  "content='width=device-width, initial-scale=1'>"
+				  "</head><body "
+				  "style='background:#f0f2f5;color:#1c1e21;text-align:center;"
+				  "font-family:Arial;padding-top:50px;'>"
+				  "<h2>" +
+					  String(kRestartMsg) +
+					  "</h2>"
+					  "<p>" +
+					  String(kRestartNote) +
+					  "</p>"
+					  "</body></html>");
+	delay(1000);
+	ESP.restart();
 }
 
-void WebConfigServer::handleShowSplash(AsyncWebServerRequest *request)
-{
-    using namespace WebUI;
-    request->send(200, "text/html",
-                  "<html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'>"
-                  "<meta http-equiv='refresh' content='11;url=/'></head>"
-                  "<body style='background:#f0f2f5;color:#1c1e21;text-align:center;font-family:Arial;padding-top:50px;'>"
-                  "<h2>" +
-                      String(kSplashMsg) + "</h2>"
-                                           "<p>" +
-                      String(kSplashNote) + "</p>"
-                                            "</body></html>");
-    state_->requestSplashPlay();
+void WebConfigServer::handleShowSplash(AsyncWebServerRequest *request) {
+	using namespace WebUI;
+	request->send(200, "text/html",
+				  "<html><head><meta charset='utf-8'><meta name='viewport' "
+				  "content='width=device-width, initial-scale=1'>"
+				  "<meta http-equiv='refresh' content='11;url=/'></head>"
+				  "<body "
+				  "style='background:#f0f2f5;color:#1c1e21;text-align:center;"
+				  "font-family:Arial;padding-top:50px;'>"
+				  "<h2>" +
+					  String(kSplashMsg) +
+					  "</h2>"
+					  "<p>" +
+					  String(kSplashNote) +
+					  "</p>"
+					  "</body></html>");
+	state_->requestSplashPlay();
 }
 
-void WebConfigServer::handleTestFireworks(AsyncWebServerRequest *request)
-{
-    fireworks_->trigger(5);
-    request->send(200, "text/plain", "OK");
+void WebConfigServer::handleTestFireworks(AsyncWebServerRequest *request) {
+	fireworks_->trigger(5);
+	request->send(200, "text/plain", "OK");
 }

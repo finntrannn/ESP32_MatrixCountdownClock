@@ -1,25 +1,26 @@
 /**
  * @file main.cpp
  * @brief Entry point for the THPT QG Countdown Clock.
- * 
+ *
  * @author finntrannn (finntrannn.id.vn)
  * @github https://github.com/finntrannn
  */
 
 #include <Arduino.h>
-#include "Config.h"
+
 #include "AppState.h"
+#include "Config.h"
+#include "DHTSensor.h"
 #include "DisplayManager.h"
+#include "FireworksEffect.h"
 #include "NetworkManager.h"
+#include "SplashScreen.h"
 #include "TimeManager.h"
 #include "WebConfigServer.h"
-#include "SplashScreen.h"
-#include "DHTSensor.h"
 #include "screens/CountdownScreen.h"
-#include "screens/SensorScreen.h"
 #include "screens/DateTimeScreen.h"
+#include "screens/SensorScreen.h"
 #include "screens/TextScreen.h"
-#include "FireworksEffect.h"
 
 // ─── Module Instances ────────────────────────────────────────────────
 static AppState appState;
@@ -40,28 +41,25 @@ static FireworksEffect fireworks;
 // Loop Animation State
 static unsigned long lastAutoCycleMs = 0;
 
-void displayTask(void *pvParameters)
-{
+void displayTask(void *pvParameters) {
 	unsigned long lastUpdate = millis();
-	int prevScreenMode = -1;
-	int prevFireworkMinute = -1;
+	int prevScreenMode		 = -1;
+	int prevFireworkMinute	 = -1;
 
-	for (;;)
-	{
+	for (;;) {
 		unsigned long nowMs = millis();
-		float dt = (nowMs - lastUpdate) / 1000.0f;
-		lastUpdate = nowMs;
+		float dt			= (nowMs - lastUpdate) / 1000.0f;
+		lastUpdate			= nowMs;
 
 		if (dt > 0.5f) dt = 0.0f;
 
-        if (appState.consumeSplashPlayRequest()) {
-            splash.play(display, true);
-            lastUpdate = millis();
-            continue;
-        }
+		if (appState.consumeSplashPlayRequest()) {
+			splash.play(display, true);
+			lastUpdate = millis();
+			continue;
+		}
 
-		if (!appState.isLedEnabled())
-		{
+		if (!appState.isLedEnabled()) {
 			display.clear();
 			display.flip();
 			vTaskDelay(pdMS_TO_TICKS(100));
@@ -70,51 +68,58 @@ void displayTask(void *pvParameters)
 
 		display.clear();
 
-        appState.lock();
+		appState.lock();
 		int currentMode = appState.getScreenMode();
-		if (currentMode != prevScreenMode)
-		{
-			if (currentMode == 1) sensorScreen.resetAnimations();
-			else if (currentMode == 3) textScreen.resetAnimations();
+		if (currentMode != prevScreenMode) {
+			if (currentMode == 1)
+				sensorScreen.resetAnimations();
+			else if (currentMode == 3)
+				textScreen.resetAnimations();
 			prevScreenMode = currentMode;
 		}
 
-		if (currentMode == 1) sensorScreen.draw(dt, display, dhtSensor, appState);
-		else if (currentMode == 2) dateTimeScreen.draw(dt, display, timeManager, dhtSensor, appState);
-		else if (currentMode == 3) textScreen.draw(dt, display, appState);
-		else countdownScreen.draw(dt, display, network, timeManager, appState);
+		if (currentMode == 1)
+			sensorScreen.draw(dt, display, dhtSensor, appState);
+		else if (currentMode == 2)
+			dateTimeScreen.draw(dt, display, timeManager, appState);
+		else if (currentMode == 3)
+			textScreen.draw(dt, display, appState);
+		else
+			countdownScreen.draw(dt, display, timeManager, appState);
 
 		time_t fwNow = timeManager.getCurrentTime();
 		if (timeManager.isTimeSynced()) {
 			struct tm *fwTime = localtime(&fwNow);
-			int curMin = fwTime->tm_hour * 60 + fwTime->tm_min;
+			int curMin		  = fwTime->tm_hour * 60 + fwTime->tm_min;
 			bool isRecessTime = false;
-            int fwDur = 0;
+			int fwDur		  = 0;
 
-            const AppState::FwSchedule* scheds = appState.getParsedFwSchedules();
-            for (int i = 0; i < 10; i++) {
-                if (scheds[i].hour == -1) break;
-                if (curMin == scheds[i].hour * 60 + scheds[i].minute) {
-                    isRecessTime = true;
-                    fwDur = scheds[i].duration;
-                    break;
-                }
-            }
+			const AppState::FwSchedule *scheds =
+				appState.getParsedFwSchedules();
+			for (int i = 0; i < 10; i++) {
+				if (scheds[i].hour == -1) break;
+				if (curMin == scheds[i].hour * 60 + scheds[i].minute) {
+					isRecessTime = true;
+					fwDur		 = scheds[i].duration;
+					break;
+				}
+			}
 
-			if (isRecessTime && fwTime->tm_sec == 0 && prevFireworkMinute != curMin) {
+			if (isRecessTime && fwTime->tm_sec == 0 &&
+				prevFireworkMinute != curMin) {
 				fireworks.trigger(fwDur > 0 ? fwDur : 5);
 				prevFireworkMinute = curMin;
 			}
 			if (!isRecessTime) prevFireworkMinute = -1;
 		}
-        appState.unlock();
+		appState.unlock();
 
 		// WiFi status indicator (all screens)
 		if (appState.isWifiIconEnabled()) {
-			auto *panel = display.getPanel();
+			auto *panel		 = display.getPanel();
 			uint16_t wifiClr = network.isConnected()
-				? panel->color565(0, 255, 0)
-				: panel->color565(255, 128, 0);
+								   ? panel->color565(0, 255, 0)
+								   : panel->color565(255, 128, 0);
 			panel->drawPixel(62, 30, wifiClr);
 		}
 
@@ -125,8 +130,7 @@ void displayTask(void *pvParameters)
 	}
 }
 
-void setup()
-{
+void setup() {
 	Serial.begin(115200);
 	Serial.println("Khoi dong THPT QG Counter...");
 
@@ -150,19 +154,11 @@ void setup()
 
 	splash.play(display);
 
-	xTaskCreatePinnedToCore(
-		displayTask,
-		"Display_Task",
-		4096,
-		nullptr,
-		2,
-		nullptr,
-		0
-	);
+	xTaskCreatePinnedToCore(displayTask, "Display_Task", 8192, nullptr, 2,
+							nullptr, 0);
 }
 
-void loop()
-{
+void loop() {
 	unsigned long nowMs = millis();
 
 	// Process Captive Portal DNS + OTA reboot check
@@ -172,52 +168,54 @@ void loop()
 	// Auto-Cycle Screen Logic
 	if (appState.isAutoCycleEnabled()) {
 		int timers[4] = {
-			appState.getTimer0_Countdown(),
-			appState.getTimer1_Sensor(),
-			appState.getTimer2_DateTime(),
-			appState.getTimer3_Text()
-		};
-		int currentMode = appState.getScreenMode();
+			appState.getTimer0_Countdown(), appState.getTimer1_Sensor(),
+			appState.getTimer2_DateTime(), appState.getTimer3_Text()};
+		int currentMode		= appState.getScreenMode();
 		int currentDuration = timers[currentMode];
 
 		if (currentDuration > 0) {
 			if (nowMs - lastAutoCycleMs >= currentDuration * 1000UL) {
-				int seqLen = 0;
-                const int* seq = appState.getParsedCycleSequence(seqLen);
-                int nextMode = currentMode;
-                
-                if (seqLen > 0) {
-                    int currIdx = -1;
-                    for (int i = 0; i < seqLen; i++) {
-                        if (seq[i] == currentMode) { currIdx = i; break; }
-                    }
-                    if (currIdx == -1) {
-                        for (int i = 0; i < seqLen; i++) {
-                            int checkMode = seq[i];
-                            if (checkMode >= 0 && checkMode < 4 && timers[checkMode] > 0) {
-                                nextMode = checkMode;
-                                break;
-                            }
-                        }
-                    } else {
-                        for (int i = 1; i <= seqLen; i++) {
-                            int checkIdx = (currIdx + i) % seqLen;
-                            int checkMode = seq[checkIdx];
-                            if (checkMode >= 0 && checkMode < 4 && timers[checkMode] > 0) {
-                                nextMode = checkMode;
-                                break;
-                            }
-                        }
-                    }
-                } else {
-                    for (int i = 1; i <= 4; i++) {
-                        int checkMode = (currentMode + i) % 4;
-                        if (timers[checkMode] > 0) {
-                            nextMode = checkMode;
-                            break;
-                        }
-                    }
-                }
+				int seqLen	   = 0;
+				const int *seq = appState.getParsedCycleSequence(seqLen);
+				int nextMode   = currentMode;
+
+				if (seqLen > 0) {
+					int currIdx = -1;
+					for (int i = 0; i < seqLen; i++) {
+						if (seq[i] == currentMode) {
+							currIdx = i;
+							break;
+						}
+					}
+					if (currIdx == -1) {
+						for (int i = 0; i < seqLen; i++) {
+							int checkMode = seq[i];
+							if (checkMode >= 0 && checkMode < 4 &&
+								timers[checkMode] > 0) {
+								nextMode = checkMode;
+								break;
+							}
+						}
+					} else {
+						for (int i = 1; i <= seqLen; i++) {
+							int checkIdx  = (currIdx + i) % seqLen;
+							int checkMode = seq[checkIdx];
+							if (checkMode >= 0 && checkMode < 4 &&
+								timers[checkMode] > 0) {
+								nextMode = checkMode;
+								break;
+							}
+						}
+					}
+				} else {
+					for (int i = 1; i <= 4; i++) {
+						int checkMode = (currentMode + i) % 4;
+						if (timers[checkMode] > 0) {
+							nextMode = checkMode;
+							break;
+						}
+					}
+				}
 
 				if (nextMode != currentMode) {
 					appState.setScreenModeVolatile(nextMode);
@@ -225,7 +223,7 @@ void loop()
 				lastAutoCycleMs = nowMs;
 			}
 		} else {
-			lastAutoCycleMs = nowMs - 60000UL; 
+			lastAutoCycleMs = nowMs;
 		}
 	} else {
 		lastAutoCycleMs = nowMs;

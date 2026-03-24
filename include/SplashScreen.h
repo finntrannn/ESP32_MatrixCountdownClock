@@ -1,7 +1,7 @@
 /**
  * @file SplashScreen.h
  * @brief Animated splash screen (12A6 animation) for startup.
- * 
+ *
  * @author finntrannn (finntrannn.id.vn)
  * @github https://github.com/finntrannn
  */
@@ -10,28 +10,30 @@
 
 #include "DisplayManager.h"
 
-
-
 class SplashScreen {
-public:
-    /**
-     * @brief Play the full splash animation sequence.
-     * @param display  Reference to the display manager (dependency injection).
-     * @param force    If true, plays even when splash is disabled in settings.
-     */
-    void play(DisplayManager& display, bool force = false);
+   public:
+	/**
+	 * @brief Play the full splash animation sequence.
+	 * @param display  Reference to the display manager (dependency injection).
+	 * @param force    If true, plays even when splash is disabled in settings.
+	 */
+	void play(DisplayManager& display, bool force = false);
 
-    /** @brief Set whether the splash screen is enabled. */
-    void setEnabled(bool enabled) { enabled_ = enabled; }
+	/** @brief Set whether the splash screen is enabled. */
+	void setEnabled(bool enabled) {
+		enabled_ = enabled;
+	}
 
-    /** @brief Check if the splash screen is enabled. */
-    bool isEnabled() const { return enabled_; }
+	/** @brief Check if the splash screen is enabled. */
+	bool isEnabled() const {
+		return enabled_;
+	}
 
-private:
-    bool enabled_ = true;
+   private:
+	bool enabled_ = true;
 
-    /** @brief Internal star data for the star field effect. */
-    struct Star {
-        int x, y, speed;
-    };
+	/** @brief Internal star data for the star field effect. */
+	struct Star {
+		int x, y, speed;
+	};
 };

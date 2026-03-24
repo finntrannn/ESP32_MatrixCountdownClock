@@ -1,3 +1,11 @@
+/**
+ * @file TextScreen.h
+ * @brief Free-form text display screen with Vietnamese font support.
+ *
+ * @author finntrannn (finntrannn.id.vn)
+ * @github https://github.com/finntrannn
+ */
+
 #pragma once
 
 #include "DisplayManager.h"

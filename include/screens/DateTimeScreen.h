@@ -10,18 +10,16 @@
 
 #include "DisplayManager.h"
 #include "TimeManager.h"
-#include "DHTSensor.h"
 #include "AppState.h"
 
 class DateTimeScreen {
 public:
     /**
-     * @brief Render the DateTime + Sensor screen.
+     * @brief Render the DateTime screen.
      * @param dt Delta time for animations.
      * @param display DisplayManager reference.
      * @param timeManager TimeManager reference.
-     * @param dhtSensor DHTSensor reference.
      * @param appState AppState reference.
      */
-    void draw(float dt, DisplayManager& display, TimeManager& timeManager, const DHTSensor& dhtSensor, const AppState& appState);
+    void draw(float dt, DisplayManager& display, TimeManager& timeManager, const AppState& appState);
 };

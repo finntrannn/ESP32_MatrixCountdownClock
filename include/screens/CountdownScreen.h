@@ -9,7 +9,6 @@
 #pragma once
 
 #include "DisplayManager.h"
-#include "NetworkManager.h"
 #include "TimeManager.h"
 #include "AppState.h"
 
@@ -19,11 +18,10 @@ public:
      * @brief Render the countdown screen.
      * @param dt Delta time in seconds.
      * @param display DisplayManager reference.
-     * @param network NetworkManager reference (for status).
      * @param timeManager TimeManager reference (for time).
      * @param appState AppState reference (for target epoch, text, etc.).
      */
-    void draw(float dt, DisplayManager& display, NetworkManager& network, TimeManager& timeManager, const AppState& appState);
+    void draw(float dt, DisplayManager& display, TimeManager& timeManager, const AppState& appState);
 
 private:
     float textX_ = 64.0f;

@@ -8,9 +8,8 @@
 
 #include "screens/DateTimeScreen.h"
 #include "Config.h"
-#include <cstdio>
 
-void DateTimeScreen::draw(float dt, DisplayManager& display, TimeManager& timeManager, const DHTSensor& dhtSensor, const AppState& appState) {
+void DateTimeScreen::draw(float dt, DisplayManager& display, TimeManager& timeManager, const AppState& appState) {
     auto *panel = display.getPanel();
 
     // ── 1. Background gradient ──────────────────────────────────────

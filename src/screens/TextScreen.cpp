@@ -1,3 +1,11 @@
+/**
+ * @file TextScreen.cpp
+ * @brief Implementation of free-form text display with Vietnamese font.
+ *
+ * @author finntrannn (finntrannn.id.vn)
+ * @github https://github.com/finntrannn
+ */
+
 #include "screens/TextScreen.h"
 
 extern const uint8_t u8g2_font_unifont_t_vietnamese1[];
@@ -21,18 +29,7 @@ void TextScreen::draw(float dt, DisplayManager& display, const AppState& appStat
     // Note: Due to U8g2 library structure, only unifont_t_vietnamese1 is fully populated.
     u8g2_for_adafruit_gfx.setFont(u8g2_font_unifont_t_vietnamese1); // 16px Vietnamese
     // Set color
-    int colorIdx = appState.getTextPanelColor();
-    uint16_t color = panel->color565(255, 255, 255); // Default White
-    switch(colorIdx) {
-        case 0: color = panel->color565(0, 255, 0); break;   // Green
-        case 1: color = panel->color565(255, 0, 0); break;   // Red
-        case 2: color = panel->color565(0, 0, 255); break;   // Blue
-        case 3: color = panel->color565(255, 255, 0); break; // Yellow
-        case 4: color = panel->color565(0, 255, 255); break; // Cyan
-        case 5: color = panel->color565(255, 0, 255); break; // Magenta
-        case 6: color = panel->color565(255, 255, 255); break; // White
-    }
-    
+    uint16_t color = DisplayManager::getStandardColor(appState.getTextPanelColor());
     u8g2_for_adafruit_gfx.setForegroundColor(color);
     u8g2_for_adafruit_gfx.setFontMode(1); // Transparent background
 
