@@ -94,7 +94,7 @@ static constexpr const char *kTxtColor	 = "Màu chữ:";
 static constexpr const char *kAutoTitle = "Kịch bản màn hình";
 static constexpr const char *kAutoEnable = "Bật tự động chuyển màn hình?";
 static constexpr const char *kAutoNote =
-	"0: Đếm ngược, 1: Nhiệt độ & độ ẩm, 2: Ngày & giờ, 3: Văn bản tự "
+	"0: Đếm ngược<br>1: Nhiệt độ & độ ẩm<br>2: Ngày & giờ<br>3: Văn bản tự "
 	"do.<br>VD: \"0,2,0\" sẽ lặp Đếm ngược -> Ngày & giờ -> Đếm ngược.";
 static constexpr const char *kAutoSeqLabel = "Thứ tự hiển thị:";
 static constexpr const char *kAutoTimersTitle = "Thời gian trình chiếu (giây)";
