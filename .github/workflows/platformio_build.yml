@@ -1,0 +1,47 @@
+name: PlatformIO Build
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+            ~/.platformio/packages
+            ~/.platformio/platforms
+          key: ${{ runner.os }}-pio-${{ hashFiles('**/platformio.ini') }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PlatformIO
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade platformio
+
+      - name: Run PlatformIO Build
+        run: pio run
+
+      - name: Upload Firmware Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: firmware-binaries
+          # This pattern catches firmware from all environments defined in platformio.ini
+          path: .pio/build/**/firmware.*
+          if-no-files-found: error
+          retention-days: 90
