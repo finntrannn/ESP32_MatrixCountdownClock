@@ -30,7 +30,7 @@ void DisplayManager::begin(int brightness) {
 	HUB75_I2S_CFG mxconfig(Panel::kResX, Panel::kResY, Panel::kChain);
 	mxconfig.double_buff	= true;
 	mxconfig.latch_blanking = 3;
-	mxconfig.i2sspeed		= HUB75_I2S_CFG::HZ_10M;
+	mxconfig.i2sspeed		= HUB75_I2S_CFG::HZ_20M;
 	mxconfig.clkphase		= false;
 	panel_					= new MatrixPanel_I2S_DMA(mxconfig);
 	panel_->begin();
