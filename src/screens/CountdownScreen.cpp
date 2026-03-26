@@ -19,7 +19,8 @@ void CountdownScreen::draw(float dt, DisplayManager &display, TimeManager &timeM
     time_t now = timeManager.getCurrentTime();
     if (timeManager.isTimeSynced())
     {
-        struct tm *timeinfo = localtime(&now);
+        struct tm timeinfo_buf;
+        struct tm *timeinfo = localtime_r(&now, &timeinfo_buf);
         char timeStr[6];
         sprintf(timeStr, "%02d:%02d", timeinfo->tm_hour, timeinfo->tm_min);
         if (showMsg)

@@ -8,8 +8,7 @@
 #include "DHTSensor.h"
 
 void DHTSensor::begin(uint8_t pin) {
-	dht_ = new DHT(pin, DHT11);
-	dht_->begin();
+	dht_.setup(pin, DHTesp::DHT11);
 
 	xTaskCreatePinnedToCore(readTask, "dht_read", 2048, this, 1, nullptr, 0);
 }
@@ -20,8 +19,8 @@ void DHTSensor::readTask(void* param) {
 	vTaskDelay(pdMS_TO_TICKS(2000));
 
 	for (;;) {
-		float t = self->dht_->readTemperature();
-		float h = self->dht_->readHumidity();
+		float t = self->dht_.getTemperature();
+		float h = self->dht_.getHumidity();
 
 		if (!isnan(t) && !isnan(h)) {
 			bool tempChanged =

@@ -99,7 +99,8 @@ void WebConfigServer::handleRoot(AsyncWebServerRequest *request) {
 	using namespace WebUI;
 
 	time_t targetEpoch = state_->getTargetEpoch();
-	struct tm *tm_targ = localtime(&targetEpoch);
+	struct tm tm_targ_info;
+	struct tm *tm_targ = localtime_r(&targetEpoch, &tm_targ_info);
 	char dtStr[64];
 	snprintf(dtStr, sizeof(dtStr), "%04d-%02d-%02dT%02d:%02d",
 			 tm_targ->tm_year + 1900, tm_targ->tm_mon + 1, tm_targ->tm_mday,
@@ -692,8 +693,7 @@ void WebConfigServer::handleRestart(AsyncWebServerRequest *request) {
 					  String(kRestartNote) +
 					  "</p>"
 					  "</body></html>");
-	delay(1000);
-	ESP.restart();
+	shouldReboot_ = true;
 }
 
 void WebConfigServer::handleShowSplash(AsyncWebServerRequest *request) {

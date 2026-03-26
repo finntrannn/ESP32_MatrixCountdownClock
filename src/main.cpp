@@ -89,7 +89,8 @@ void displayTask(void *pvParameters) {
 
 		time_t fwNow = timeManager.getCurrentTime();
 		if (timeManager.isTimeSynced()) {
-			struct tm *fwTime = localtime(&fwNow);
+			struct tm fwTimeInfo;
+			struct tm *fwTime = localtime_r(&fwNow, &fwTimeInfo);
 			int curMin		  = fwTime->tm_hour * 60 + fwTime->tm_min;
 			bool isRecessTime = false;
 			int fwDur		  = 0;

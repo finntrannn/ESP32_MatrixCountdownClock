@@ -29,7 +29,8 @@ void DateTimeScreen::draw(float dt, DisplayManager& display, TimeManager& timeMa
     time_t now = timeManager.getCurrentTime();
     if (timeManager.isTimeSynced())
     {
-        struct tm *timeinfo = localtime(&now);
+        struct tm timeinfo_buf;
+        struct tm *timeinfo = localtime_r(&now, &timeinfo_buf);
         
         // Time (HH:MM:SS) - Cyan color
         char timeStr[16];

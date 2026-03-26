@@ -9,7 +9,7 @@
 #pragma once
 
 #include <Arduino.h>
-#include <DHT.h>
+#include <DHTesp.h>
 
 class DHTSensor {
    public:
@@ -35,7 +35,7 @@ class DHTSensor {
 	}
 
    private:
-	DHT* dht_ = nullptr;
+	DHTesp dht_;
 
 	// Stable (deadband-filtered) values exposed to the renderer
 	volatile float stableTemp_ = 0.0f;
