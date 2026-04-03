@@ -32,7 +32,7 @@ void TextScreen::draw(float dt, DisplayManager& display,
 		u8g2_font_unifont_t_vietnamese1);  // 16px Vietnamese
 	// Set color
 	uint16_t color =
-		DisplayManager::getStandardColor(appState.getTextPanelColor());
+		DisplayManager::hexToColor565(appState.getTextPanelColor());
 	u8g2_for_adafruit_gfx.setForegroundColor(color);
 	u8g2_for_adafruit_gfx.setFontMode(1);  // Transparent background
 
@@ -50,50 +50,22 @@ void TextScreen::draw(float dt, DisplayManager& display,
 			u8g2_for_adafruit_gfx.setCursor((int)textX_, yPos);
 			u8g2_for_adafruit_gfx.print(text.c_str());
 
-			static uint8_t s_frame_cnt = 0;
-			s_frame_cnt++;
-			int fPS = 1, pPS = 1;
+			float pps = 62.5f;
 			switch (appState.getTextPanelSpeed()) {
-				case 1:
-					fPS = 6;
-					break;
-				case 2:
-					fPS = 5;
-					break;
-				case 3:
-					fPS = 4;
-					break;
-				case 4:
-					fPS = 3;
-					break;
-				case 5:
-					fPS = 2;
-					break;
-				case 6:
-					fPS = 1;
-					pPS = 1;
-					break;
-				case 7:
-					fPS = 1;
-					pPS = 2;
-					break;
-				case 8:
-					fPS = 1;
-					pPS = 3;
-					break;
-				case 9:
-					fPS = 1;
-					pPS = 4;
-					break;
-				default:
-					fPS = 1;
-					pPS = 5;
-					break;
+				case 1: pps = 15.0f; break;
+				case 2: pps = 25.0f; break;
+				case 3: pps = 35.0f; break;
+				case 4: pps = 45.0f; break;
+				case 5: pps = 55.0f; break;
+				case 6: pps = 62.5f; break;	 // ~1 px per frame (perfectly smooth)
+				case 7: pps = 75.0f; break;
+				case 8: pps = 90.0f; break;
+				case 9: pps = 105.0f; break;
+				case 10: pps = 125.0f; break; // ~2 px per frame
+				default: pps = 62.5f; break;
 			}
-			if (s_frame_cnt >= fPS) {
-				textX_ -= pPS;
-				s_frame_cnt = 0;
-			}
+			
+			textX_ -= pps * dt;
 
 			if (textX_ < -textWidth) {
 				textX_ = 64.0f;

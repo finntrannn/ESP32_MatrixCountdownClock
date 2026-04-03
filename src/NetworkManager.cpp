@@ -13,6 +13,8 @@
 void NetworkManager::begin(const AppState& appState) {
 	WiFi.mode(WIFI_AP_STA);
 	WiFi.softAP(appState.getApSSID().c_str(), appState.getApPass().c_str());
+	delay(100);  // Give AP radio time to fully initialize
+	WiFi.setAutoReconnect(true);
 	WiFi.begin(appState.getStaSSID().c_str(), appState.getStaPass().c_str());
 
 	Serial.println("Web Server bắt đầu tại IP: 192.168.4.1");

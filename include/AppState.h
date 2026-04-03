@@ -86,16 +86,16 @@ class AppState {
 	int getTextPanelSpeed() const {
 		return textPanelSpeed_;
 	}
-	int getTextPanelColor() const {
+	const String& getTextPanelColor() const {
 		return textPanelColor_;
 	}
 	bool isTextPanelScrollEnabled() const {
 		return textPanelScroll_;
 	}
-	int getCdDaysColor() const {
+	const String& getCdDaysColor() const {
 		return cdDaysColor_;
 	}
-	int getCdTimeColor() const {
+	const String& getCdTimeColor() const {
 		return cdTimeColor_;
 	}
 
@@ -140,6 +140,9 @@ class AppState {
 	int getTimer3_Text() const {
 		return timer3_;
 	}
+	int getTimer4_Spinner() const {
+		return timer4_;
+	}
 
 	const String& getFwSchedules() const {
 		return fwSchedules_;
@@ -159,6 +162,32 @@ class AppState {
 	const int* getParsedCycleSequence(int& len) const {
 		len = cycleSequenceLen_;
 		return cycleSequenceParsed_;
+	}
+
+	// ─── Spinner Getters ─────────────────────────────────────────
+	int getSpinRangeMin() const {
+		return spinRangeMin_;
+	}
+	int getSpinRangeMax() const {
+		return spinRangeMax_;
+	}
+	int getSpinDuration() const {
+		return spinDuration_;
+	}
+	const String& getExcludedNumbers() const {
+		return excludedNumbers_;
+	}
+	bool consumeSpinRequest() {
+		return spinRequest_.exchange(false);
+	}
+	void requestSpin() {
+		spinRequest_.store(true);
+	}
+	bool consumeSpinResetRequest() {
+		return spinResetRequest_.exchange(false);
+	}
+	void requestSpinReset() {
+		spinResetRequest_.store(true);
 	}
 
 	// ─── Setters (auto-persist to NVS) ───────────────────────────
@@ -182,10 +211,10 @@ class AppState {
 	void setCustomText(const String& text);
 	void setTextPanelContent(const String& text);
 	void setTextPanelSpeed(int speed);
-	void setTextPanelColor(int color);
+	void setTextPanelColor(const String& color);
 	void setTextPanelScrollEnabled(bool enabled);
-	void setCdDaysColor(int color);
-	void setCdTimeColor(int color);
+	void setCdDaysColor(const String& color);
+	void setCdTimeColor(const String& color);
 
 	void setShowYearEnabled(bool enabled);
 	void setShortYearEnabled(bool enabled);
@@ -201,12 +230,21 @@ class AppState {
 	void setTimer1_Sensor(int t);
 	void setTimer2_DateTime(int t);
 	void setTimer3_Text(int t);
+	void setTimer4_Spinner(int t);
 
 	void setFwSchedules(const String& scheds);
 	void setCycleSequence(const String& seq);
 
+	// Spinner setters
+	void setSpinRangeMin(int val);
+	void setSpinRangeMax(int val);
+	void setSpinDuration(int val);
+	void setExcludedNumbers(const String& nums);
+
    private:
 	std::atomic<bool> playSplashReq_{false};
+	std::atomic<bool> spinRequest_{false};
+	std::atomic<bool> spinResetRequest_{false};
 	SemaphoreHandle_t mutex_ = NULL;
 	Preferences preferences_;
 
@@ -221,17 +259,17 @@ class AppState {
 	int textSpeed_			   = 4;
 	int rainbowSpeed_		   = 5;
 	int brightnessVal_		   = 60;
-	int screenMode_ = 0;  // 0 = Countdown, 1 = Sensor, 2 = Date/Time+Sensor
-	bool sensorBgEnabled_	 = true;  // Background gradient
+	int screenMode_ = 0;  // 0=Countdown, 1=Sensor, 2=DateTime, 3=Text, 4=Spinner
+	bool sensorBgEnabled_	 = true;
 	bool showMessageEnabled_ = true;
 	bool wifiIconEnabled_	 = true;
 	String customText_		 = "Co len!";
 	String textPanelContent_ = "XIN CHAO";
 	int textPanelSpeed_		 = 5;
-	int textPanelColor_		 = 0;
+	String textPanelColor_	 = "#00FF00";
 	bool textPanelScroll_	 = true;
-	int cdDaysColor_		 = 3;  // Yellow
-	int cdTimeColor_		 = 4;  // Cyan
+	String cdDaysColor_		 = "#FFFF00";
+	String cdTimeColor_		 = "#00FFFF";
 
 	bool showYear_	   = true;
 	bool shortYear_	   = false;
@@ -247,6 +285,7 @@ class AppState {
 	int timer1_		= 5;
 	int timer2_		= 10;
 	int timer3_		= 20;
+	int timer4_		= 10;
 
 	String fwSchedules_	  = "";
 	String cycleSequence_ = "";
@@ -254,6 +293,12 @@ class AppState {
 	FwSchedule fwSchedulesParsed_[10];
 	int cycleSequenceParsed_[10];
 	int cycleSequenceLen_ = 0;
+
+	// Spinner
+	int spinRangeMin_		= 1;
+	int spinRangeMax_		= 48;
+	int spinDuration_		= 5;
+	String excludedNumbers_ = "";
 
 	void parseFwSchedules();
 	void parseCycleSequence();

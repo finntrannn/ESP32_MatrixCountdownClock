@@ -60,7 +60,7 @@ void CountdownScreen::draw(float dt, DisplayManager &display,
 
 	// Days row
 	uint16_t daysColor =
-		DisplayManager::getStandardColor(appState.getCdDaysColor());
+		DisplayManager::hexToColor565(appState.getCdDaysColor());
 	panel->setTextColor(daysColor);
 	char numStr[16];
 	sprintf(numStr, "%d", (int)days);
@@ -105,7 +105,7 @@ void CountdownScreen::draw(float dt, DisplayManager &display,
 	if (startXTime < 0) startXTime = 0;
 
 	uint16_t timeColor =
-		DisplayManager::getStandardColor(appState.getCdTimeColor());
+		DisplayManager::hexToColor565(appState.getCdTimeColor());
 	panel->setTextColor(timeColor);
 
 	panel->setCursor(startXTime, hmsY);

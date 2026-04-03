@@ -67,6 +67,13 @@ class DisplayManager {
 	static uint16_t getStandardColor(int index);
 
 	/**
+	 * @brief Convert a hex color string "#RRGGBB" to RGB565.
+	 * @param hex Hex color string (e.g. "#FF00AA").
+	 * @return 16-bit RGB565 color.
+	 */
+	static uint16_t hexToColor565(const String& hex);
+
+	/**
 	 * @brief Draw an animated rainbow border around the panel.
 	 * @param offset Animation offset for cycling colors.
 	 */

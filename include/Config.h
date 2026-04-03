@@ -49,12 +49,18 @@ constexpr bool kWifiIcon		= true;	 // Show WiFi status indicator pixel
 // Text Matrix Settings
 constexpr const char *kTextPanelContent = "XIN CHAO";
 constexpr int kTextPanelSpeed			= 5;
-constexpr int kTextPanelColor			= 0;	 // 0: Green, 1: Red...
-constexpr bool kTextPanelScroll			= true;	 // 1: Scroll, 0: Word Wrap
+constexpr const char *kTextPanelColor	= "#00FF00";	 // Green hex
+constexpr bool kTextPanelScroll			= true;
 
-// Countdown screen colors
-constexpr int kCdDaysColor = 3;	 // 0-6, default Yellow
-constexpr int kCdTimeColor = 4;	 // 0-6, default Cyan
+// Countdown screen colors (hex)
+constexpr const char *kCdDaysColor = "#FFFF00";	 // Yellow
+constexpr const char *kCdTimeColor = "#00FFFF";	 // Cyan
+
+// Random Spinner
+constexpr int kSpinRangeMin	 = 1;
+constexpr int kSpinRangeMax	 = 48;
+constexpr int kSpinDuration	 = 5;	  // seconds
+constexpr int kTimer4		 = 10;
 
 // Date formatting
 constexpr bool kShowYear	 = true;
@@ -116,9 +122,16 @@ constexpr const char *kTimer0	 = "timer0";
 constexpr const char *kTimer1	 = "timer1";
 constexpr const char *kTimer2	 = "timer2";
 constexpr const char *kTimer3	 = "timer3";
+constexpr const char *kTimer4	 = "timer4";
 constexpr const char *kFwScheds	 = "fwScheds";
 constexpr const char *kCycleSeq	 = "cycleSeq";
 constexpr const char *kWifiIcon	 = "wifiIcon";
+
+// Spinner
+constexpr const char *kSpinMin	 = "spinMin";
+constexpr const char *kSpinMax	 = "spinMax";
+constexpr const char *kSpinDur	 = "spinDur";
+constexpr const char *kSpinExcl	 = "spinExcl";
 }  // namespace NvsKeys
 
 // ─── NTP Configuration ──────────────────────────────────────────────

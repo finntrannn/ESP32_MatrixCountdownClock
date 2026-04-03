@@ -19,6 +19,7 @@
 #include "WebConfigServer.h"
 #include "screens/CountdownScreen.h"
 #include "screens/DateTimeScreen.h"
+#include "screens/RandomSpinnerScreen.h"
 #include "screens/SensorScreen.h"
 #include "screens/TextScreen.h"
 
@@ -36,6 +37,7 @@ static CountdownScreen countdownScreen;
 static SensorScreen sensorScreen;
 static DateTimeScreen dateTimeScreen;
 static TextScreen textScreen;
+static RandomSpinnerScreen spinnerScreen;
 static FireworksEffect fireworks;
 
 // Loop Animation State
@@ -87,6 +89,8 @@ void displayTask(void *pvParameters) {
 			dateTimeScreen.draw(dt, display, timeManager, appState);
 		else if (currentMode == 3)
 			textScreen.draw(dt, display, appState);
+		else if (currentMode == 4)
+			spinnerScreen.draw(dt, display, appState);
 		else
 			countdownScreen.draw(dt, display, timeManager, appState);
 
@@ -171,9 +175,10 @@ void loop() {
 
 	// Auto-Cycle Screen Logic
 	if (appState.isAutoCycleEnabled()) {
-		int timers[4] = {
+		int timers[5] = {
 			appState.getTimer0_Countdown(), appState.getTimer1_Sensor(),
-			appState.getTimer2_DateTime(), appState.getTimer3_Text()};
+			appState.getTimer2_DateTime(), appState.getTimer3_Text(),
+			appState.getTimer4_Spinner()};
 		int currentMode		= appState.getScreenMode();
 		int currentDuration = timers[currentMode];
 
@@ -194,7 +199,7 @@ void loop() {
 					if (currIdx == -1) {
 						for (int i = 0; i < seqLen; i++) {
 							int checkMode = seq[i];
-							if (checkMode >= 0 && checkMode < 4 &&
+							if (checkMode >= 0 && checkMode < 5 &&
 								timers[checkMode] > 0) {
 								nextMode = checkMode;
 								break;
@@ -204,7 +209,7 @@ void loop() {
 						for (int i = 1; i <= seqLen; i++) {
 							int checkIdx  = (currIdx + i) % seqLen;
 							int checkMode = seq[checkIdx];
-							if (checkMode >= 0 && checkMode < 4 &&
+							if (checkMode >= 0 && checkMode < 5 &&
 								timers[checkMode] > 0) {
 								nextMode = checkMode;
 								break;
@@ -212,8 +217,8 @@ void loop() {
 						}
 					}
 				} else {
-					for (int i = 1; i <= 4; i++) {
-						int checkMode = (currentMode + i) % 4;
+					for (int i = 1; i <= 5; i++) {
+						int checkMode = (currentMode + i) % 5;
 						if (timers[checkMode] > 0) {
 							nextMode = checkMode;
 							break;

@@ -49,6 +49,16 @@ void WebConfigServer::begin(AppState &state, DisplayManager &display,
 				   handleTestFireworks(request);
 			   });
 
+	// Spinner AJAX endpoints
+	server_.on("/spin", HTTP_POST, [this](AsyncWebServerRequest *request) {
+		state_->requestSpin();
+		request->send(200, "text/plain", "OK");
+	});
+	server_.on("/spin-reset", HTTP_POST, [this](AsyncWebServerRequest *request) {
+		state_->requestSpinReset();
+		request->send(200, "text/plain", "OK");
+	});
+
 	server_.on(
 		"/update", HTTP_POST,
 		[](AsyncWebServerRequest *request) {
@@ -227,6 +237,23 @@ function selRadio(name,val){
   document.getElementById('lbl_'+name+'_'+val).className='selected';
 }
 function syncS(id,v){document.getElementById(id).value=v;}
+function doSpin(btn) {
+  var durInput = document.querySelector('input[name="spinDur"]');
+  var dur = (durInput ? parseInt(durInput.value) : 5) * 1000;
+  btn.disabled = true;
+  var oldText = btn.innerText;
+  btn.innerText = "Đang quay...";
+  btn.style.opacity = "0.5";
+  fetch("/spin", {method:"POST"});
+  setTimeout(function() {
+    btn.disabled = false;
+    btn.innerText = oldText;
+    btn.style.opacity = "1";
+  }, dur + 2500);
+}
+function doSpinReset(btn) {
+  fetch("/spin-reset", {method:"POST"});
+}
 </script>
 )rawhtml";
 
@@ -235,7 +262,7 @@ function syncS(id,v){document.getElementById(id).value=v;}
 	String parentId = "";
 	if (currentTab == "cd" || currentTab == "sensor" ||
 		currentTab == "datetime" || currentTab == "text" ||
-		currentTab == "scr_gen")
+		currentTab == "spinner" || currentTab == "scr_gen")
 		parentId = "dd_disp";
 
 	html += "<script>window.onload=function(){opentab('" + currentTab + "'" +
@@ -281,6 +308,11 @@ function syncS(id,v){document.getElementById(id).value=v;}
 		"<button type='button' id='btn_text' class='tab-btn' "
 		"onclick='opentab(\"text\",\"dd_disp\")'>";
 	html += kNavText;
+	html += "</button>";
+	html +=
+		"<button type='button' id='btn_spinner' class='tab-btn' "
+		"onclick='opentab(\"spinner\",\"dd_disp\")'>";
+	html += kNavSpinner;
 	html += "</button>";
 	html += "</div>";
 
@@ -379,9 +411,9 @@ function syncS(id,v){document.getElementById(id).value=v;}
 	html += "<div class='section'><h3>" + String(kGenScreenTitle) + "</h3>";
 	html += "<span class='note'>" + String(kGenScreenNote) + "</span>";
 	html += "<div class='radio-group'>";
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 5; i++) {
 		const char *labels[] = {kScrCountdown, kScrSensor, kScrDateTime,
-								kScrText};
+								kScrText, kScrSpinner};
 		html += "<label data-rn='mode' id='lbl_mode_" + String(i) +
 				"' class='" +
 				String(state_->getScreenMode() == i ? "selected" : "") +
@@ -422,20 +454,9 @@ function syncS(id,v){document.getElementById(id).value=v;}
 			getSlider("rainbowSpeed", 1, 10, state_->getRainbowSpeed());
 	html += "</div>";
 	html += "<div class='section'><h3>" + String(kCdColorTitle) + "</h3>";
-	html +=
-		"<label>" + String(kCdDaysColor) + "</label><select name='cdDaysClr'>";
-	for (int i = 0; i < 7; i++)
-		html += "<option value='" + String(i) + "'" +
-				String(state_->getCdDaysColor() == i ? " selected" : "") + ">" +
-				kColors[i] + "</option>";
-	html += "</select>";
-	html +=
-		"<label>" + String(kCdTimeColor) + "</label><select name='cdTimeClr'>";
-	for (int i = 0; i < 7; i++)
-		html += "<option value='" + String(i) + "'" +
-				String(state_->getCdTimeColor() == i ? " selected" : "") + ">" +
-				kColors[i] + "</option>";
-	html += "</select></div></div></div>";
+	html += "<label>" + String(kCdDaysColor) + "</label><input type='color' name='cdDaysClr' value='" + state_->getCdDaysColor() + "'>";
+	html += "<label>" + String(kCdTimeColor) + "</label><input type='color' name='cdTimeClr' value='" + state_->getCdTimeColor() + "'>";
+	html += "</div></div></div>";
 
 	// ─── TAB: Sensor ─────────────────────────────────────────────
 	html += "<div id='tab_sensor' class='tab-content'><div class='grid'>";
@@ -489,12 +510,8 @@ function syncS(id,v){document.getElementById(id).value=v;}
 			state_->getTextPanelContent() + "'>";
 	html += "<label>" + String(kTxtSpeed) + "</label>" +
 			getSlider("txtSpeed", 1, 10, state_->getTextPanelSpeed());
-	html += "<label>" + String(kTxtColor) + "</label><select name='txtColor'>";
-	for (int i = 0; i < 7; i++)
-		html += "<option value='" + String(i) + "'" +
-				(state_->getTextPanelColor() == i ? " selected" : "") + ">" +
-				kColors[i] + "</option>";
-	html += "</select></div></div></div>";
+	html += "<label>" + String(kTxtColor) + "</label><input type='color' name='txtColor' value='" + state_->getTextPanelColor() + "'>";
+	html += "</div></div></div>";
 
 	// ─── TAB: Auto ───────────────────────────────────────────────
 	html += "<div id='tab_auto' class='tab-content'><div class='grid'>";
@@ -517,6 +534,8 @@ function syncS(id,v){document.getElementById(id).value=v;}
 			getSlider("timer2", 0, 120, state_->getTimer2_DateTime());
 	html += "<label>" + String(kScrText) + ":</label>" +
 			getSlider("timer3", 0, 120, state_->getTimer3_Text());
+	html += "<label>" + String(kScrSpinner) + ":</label>" +
+			getSlider("timer4", 0, 120, state_->getTimer4_Spinner());
 	html += "</div>";
 
 	html += "<div class='section'><h3>" + String(kFwTitle) + "</h3>";
@@ -530,6 +549,19 @@ function syncS(id,v){document.getElementById(id).value=v;}
 		"class='btn-small' "
 		"style='background:#f39c12;margin-top:12px;width:100%;'>" +
 		String(kFwTestBtn) + "</button>";
+	html += "</div></div></div>";
+
+	// ─── TAB: Spinner ───────────────────────────────────────────
+	html += "<div id='tab_spinner' class='tab-content'><div class='grid'>";
+	html += "<div class='section'><h3>" + String(kSpinTitle) + "</h3>";
+	html += "<label>" + String(kSpinMin) + "</label><input type='number' name='spinMin' value='" + String(state_->getSpinRangeMin()) + "' min='0' max='9999'>";
+	html += "<label>" + String(kSpinMax) + "</label><input type='number' name='spinMax' value='" + String(state_->getSpinRangeMax()) + "' min='1' max='9999'>";
+	html += "<label>" + String(kSpinDur) + "</label>" + getSlider("spinDur", 1, 30, state_->getSpinDuration());
+	html += "</div>";
+
+	html += "<div class='section'><h3>Điều khiển</h3>";
+	html += "<button type='button' id='btnDoSpin' onclick='doSpin(this)' class='btn-small' style='background:#28a745;width:100%;margin-bottom:8px;'>" + String(kSpinBtn) + "</button>";
+	html += "<button type='button' id='btnSpinReset' onclick='doSpinReset(this)' class='btn-small' style='background:#dc3545;width:100%;'>" + String(kSpinReset) + "</button>";
 	html += "</div></div></div>";
 
 	// ─── TAB: OTA ────────────────────────────────────────────────
@@ -643,8 +675,8 @@ void WebConfigServer::handleSave(AsyncWebServerRequest *request) {
 	state_->setRainbowEnabled(hasArg("rainbowState") &&
 							  arg("rainbowState") == "1");
 
-	if (hasArg("cdDaysClr")) state_->setCdDaysColor(arg("cdDaysClr").toInt());
-	if (hasArg("cdTimeClr")) state_->setCdTimeColor(arg("cdTimeClr").toInt());
+	if (hasArg("cdDaysClr")) state_->setCdDaysColor(arg("cdDaysClr"));
+	if (hasArg("cdTimeClr")) state_->setCdTimeColor(arg("cdTimeClr"));
 
 	if (hasArg("textSpeed")) state_->setTextSpeed(arg("textSpeed").toInt());
 	if (hasArg("rainbowSpeed"))
@@ -655,7 +687,7 @@ void WebConfigServer::handleSave(AsyncWebServerRequest *request) {
 
 	if (hasArg("txtContent")) state_->setTextPanelContent(arg("txtContent"));
 	if (hasArg("txtSpeed")) state_->setTextPanelSpeed(arg("txtSpeed").toInt());
-	if (hasArg("txtColor")) state_->setTextPanelColor(arg("txtColor").toInt());
+	if (hasArg("txtColor")) state_->setTextPanelColor(arg("txtColor"));
 	state_->setTextPanelScrollEnabled(hasArg("txtScroll") &&
 									  arg("txtScroll") == "1");
 
@@ -666,6 +698,12 @@ void WebConfigServer::handleSave(AsyncWebServerRequest *request) {
 	if (hasArg("timer3")) state_->setTimer3_Text(arg("timer3").toInt());
 	if (hasArg("cycleSeq")) state_->setCycleSequence(arg("cycleSeq"));
 	if (hasArg("fwScheds")) state_->setFwSchedules(arg("fwScheds"));
+
+	// Spinner settings
+	if (hasArg("spinMin")) state_->setSpinRangeMin(arg("spinMin").toInt());
+	if (hasArg("spinMax")) state_->setSpinRangeMax(arg("spinMax").toInt());
+	if (hasArg("spinDur")) state_->setSpinDuration(arg("spinDur").toInt());
+	if (hasArg("timer4")) state_->setTimer4_Spinner(arg("timer4").toInt());
 
 	state_->unlock();
 

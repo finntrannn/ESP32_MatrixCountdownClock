@@ -56,6 +56,7 @@ static constexpr const char *kScrCountdown = "Đếm ngược";
 static constexpr const char *kScrSensor	   = "Đo nhiệt độ & độ ẩm";
 static constexpr const char *kScrDateTime  = "Ngày & giờ";
 static constexpr const char *kScrText	   = "Văn bản tự do";
+static constexpr const char *kScrSpinner   = "Quay số";
 
 // ─── Countdown Tab ───────────────────────────────────────────────
 static constexpr const char *kCdTitle = "Cấu hình màn hình đếm ngược";
@@ -96,7 +97,7 @@ static constexpr const char *kAutoTitle = "Kịch bản màn hình";
 static constexpr const char *kAutoEnable = "Bật tự động chuyển màn hình?";
 static constexpr const char *kAutoNote =
 	"0: Đếm ngược<br>1: Nhiệt độ & độ ẩm<br>2: Ngày & giờ<br>3: Văn bản tự "
-	"do.<br>VD: \"0,2,0\" sẽ lặp Đếm ngược -> Ngày & giờ -> Đếm ngược.";
+	"do.<br>4: Quay số.<br>VD: \"0,2,0\" sẽ lặp Đếm ngược -> Ngày & giờ -> Đếm ngược.";
 static constexpr const char *kAutoSeqLabel = "Thứ tự hiển thị:";
 static constexpr const char *kAutoTimersTitle = "Thời gian trình chiếu (giây)";
 static constexpr const char *kFwTitle = "Lịch hiển thị pháo hoa";
@@ -115,9 +116,15 @@ static constexpr const char *kOtaUploading = "Đang tải lên: ";
 static constexpr const char *kOtaSuccess = "Hoàn tất! Đang khởi động lại...";
 static constexpr const char *kOtaError = "Lỗi mất kết nối!";
 
-// ─── Colors ──────────────────────────────────────────────────────
-static constexpr const char *kColors[] = {"Xanh lá", "Đỏ",	"Xanh lam", "Vàng",
-										  "Cyan",	 "Tím", "Trắng"};
+// ─── Spinner Tab ─────────────────────────────────────────────────
+static constexpr const char *kSpinTitle	  = "Cấu hình màn hình quay số";
+static constexpr const char *kSpinRange	  = "Phạm vi số:";
+static constexpr const char *kSpinMin	  = "Từ:";
+static constexpr const char *kSpinMax	  = "Đến:";
+static constexpr const char *kSpinDur	  = "Thời gian quay (giây):";
+static constexpr const char *kSpinBtn	  = "Quay số";
+static constexpr const char *kSpinReset	  = "Chơi lại (Reset)";
+static constexpr const char *kNavSpinner  = "MH Quay số";
 
 // ─── Restart / Splash pages ──────────────────────────────────────
 static constexpr const char *kRestartMsg = "Đang khởi động lại...";

@@ -48,13 +48,13 @@ void AppState::load() {
 	textPanelSpeed_ =
 		preferences_.getInt(NvsKeys::kTxtSpeed, Defaults::kTextPanelSpeed);
 	textPanelColor_ =
-		preferences_.getInt(NvsKeys::kTxtColor, Defaults::kTextPanelColor);
+		preferences_.getString(NvsKeys::kTxtColor, Defaults::kTextPanelColor);
 	textPanelScroll_ =
 		preferences_.getBool(NvsKeys::kTxtScroll, Defaults::kTextPanelScroll);
 	cdDaysColor_ =
-		preferences_.getInt(NvsKeys::kCdDaysClr, Defaults::kCdDaysColor);
+		preferences_.getString(NvsKeys::kCdDaysClr, Defaults::kCdDaysColor);
 	cdTimeColor_ =
-		preferences_.getInt(NvsKeys::kCdTimeClr, Defaults::kCdTimeColor);
+		preferences_.getString(NvsKeys::kCdTimeClr, Defaults::kCdTimeColor);
 
 	showYear_ = preferences_.getBool(NvsKeys::kShowYear, Defaults::kShowYear);
 	shortYear_ =
@@ -73,11 +73,22 @@ void AppState::load() {
 	timer1_ = preferences_.getInt(NvsKeys::kTimer1, Defaults::kTimer1);
 	timer2_ = preferences_.getInt(NvsKeys::kTimer2, Defaults::kTimer2);
 	timer3_ = preferences_.getInt(NvsKeys::kTimer3, Defaults::kTimer3);
+	timer4_ = preferences_.getInt(NvsKeys::kTimer4, Defaults::kTimer4);
 
 	fwSchedules_ =
 		preferences_.getString(NvsKeys::kFwScheds, Defaults::kFwScheds);
 	cycleSequence_ =
 		preferences_.getString(NvsKeys::kCycleSeq, Defaults::kCycleSeq);
+
+	// Spinner
+	spinRangeMin_ =
+		preferences_.getInt(NvsKeys::kSpinMin, Defaults::kSpinRangeMin);
+	spinRangeMax_ =
+		preferences_.getInt(NvsKeys::kSpinMax, Defaults::kSpinRangeMax);
+	spinDuration_ =
+		preferences_.getInt(NvsKeys::kSpinDur, Defaults::kSpinDuration);
+	excludedNumbers_ =
+		preferences_.getString(NvsKeys::kSpinExcl, "");
 
 	parseFwSchedules();
 	parseCycleSequence();
@@ -136,7 +147,6 @@ void AppState::setSplashEnabled(bool enabled) {
 }
 
 void AppState::setSplashText(const String& text) {
-	// Limit string length to avoid running out of screen or memory
 	if (text.length() > 20) {
 		splashText_ = text.substring(0, 20);
 	} else {
@@ -183,7 +193,7 @@ void AppState::setBrightness(int brightness) {
 
 void AppState::setScreenMode(int mode) {
 	if (mode < 0) mode = 0;
-	if (mode > 3) mode = 3;
+	if (mode > 4) mode = 4;
 	screenMode_ = mode;
 	preferences_.putInt(NvsKeys::kScreenMode, mode);
 }
@@ -220,11 +230,9 @@ void AppState::setTextPanelSpeed(int speed) {
 	preferences_.putInt(NvsKeys::kTxtSpeed, speed);
 }
 
-void AppState::setTextPanelColor(int color) {
-	if (color < 0) color = 0;
-	if (color > 6) color = 6;
+void AppState::setTextPanelColor(const String& color) {
 	textPanelColor_ = color;
-	preferences_.putInt(NvsKeys::kTxtColor, color);
+	preferences_.putString(NvsKeys::kTxtColor, color);
 }
 
 void AppState::setTextPanelScrollEnabled(bool enabled) {
@@ -232,18 +240,14 @@ void AppState::setTextPanelScrollEnabled(bool enabled) {
 	preferences_.putBool(NvsKeys::kTxtScroll, enabled);
 }
 
-void AppState::setCdDaysColor(int color) {
-	if (color < 0) color = 0;
-	if (color > 6) color = 6;
+void AppState::setCdDaysColor(const String& color) {
 	cdDaysColor_ = color;
-	preferences_.putInt(NvsKeys::kCdDaysClr, color);
+	preferences_.putString(NvsKeys::kCdDaysClr, color);
 }
 
-void AppState::setCdTimeColor(int color) {
-	if (color < 0) color = 0;
-	if (color > 6) color = 6;
+void AppState::setCdTimeColor(const String& color) {
 	cdTimeColor_ = color;
-	preferences_.putInt(NvsKeys::kCdTimeClr, color);
+	preferences_.putString(NvsKeys::kCdTimeClr, color);
 }
 
 void AppState::setShowYearEnabled(bool enabled) {
@@ -310,6 +314,12 @@ void AppState::setTimer3_Text(int t) {
 	preferences_.putInt(NvsKeys::kTimer3, t);
 }
 
+void AppState::setTimer4_Spinner(int t) {
+	if (t < 0) t = 0;
+	timer4_ = t;
+	preferences_.putInt(NvsKeys::kTimer4, t);
+}
+
 void AppState::setFwSchedules(const String& scheds) {
 	fwSchedules_ = scheds;
 	preferences_.putString(NvsKeys::kFwScheds, scheds);
@@ -320,4 +330,31 @@ void AppState::setCycleSequence(const String& seq) {
 	cycleSequence_ = seq;
 	preferences_.putString(NvsKeys::kCycleSeq, seq);
 	parseCycleSequence();
+}
+
+// ─── Spinner Setters ─────────────────────────────────────────────
+void AppState::setSpinRangeMin(int val) {
+	if (val < 0) val = 0;
+	if (val > 9999) val = 9999;
+	spinRangeMin_ = val;
+	preferences_.putInt(NvsKeys::kSpinMin, val);
+}
+
+void AppState::setSpinRangeMax(int val) {
+	if (val < 1) val = 1;
+	if (val > 9999) val = 9999;
+	spinRangeMax_ = val;
+	preferences_.putInt(NvsKeys::kSpinMax, val);
+}
+
+void AppState::setSpinDuration(int val) {
+	if (val < 1) val = 1;
+	if (val > 30) val = 30;
+	spinDuration_ = val;
+	preferences_.putInt(NvsKeys::kSpinDur, val);
+}
+
+void AppState::setExcludedNumbers(const String& nums) {
+	excludedNumbers_ = nums;
+	preferences_.putString(NvsKeys::kSpinExcl, nums);
 }

@@ -29,10 +29,11 @@ const uint16_t DisplayManager::kDigits3x5[12] = {
 void DisplayManager::begin(int brightness) {
 	HUB75_I2S_CFG mxconfig(Panel::kResX, Panel::kResY, Panel::kChain);
 	mxconfig.double_buff	  = true;
-	mxconfig.latch_blanking	  = 2;
-	mxconfig.i2sspeed		  = HUB75_I2S_CFG::HZ_20M;
+	mxconfig.latch_blanking	  = 4;
+	mxconfig.i2sspeed		  = HUB75_I2S_CFG::HZ_10M;
 	mxconfig.clkphase		  = false;
-	mxconfig.min_refresh_rate = 255;
+	mxconfig.min_refresh_rate = 120;
+	// mxconfig.setPixelColorDepthBits(6);
 	panel_					  = new MatrixPanel_I2S_DMA(mxconfig);
 	panel_->begin();
 	panel_->setBrightness8(brightness);
@@ -143,4 +144,16 @@ uint16_t DisplayManager::getStandardColor(int index) {
 		default:
 			return 0xFFFF;	// White
 	}
+}
+
+uint16_t DisplayManager::hexToColor565(const String& hex) {
+	// Parse "#RRGGBB" → RGB565
+	if (hex.length() < 7 || hex[0] != '#') {
+		return 0xFFFF;	// fallback white
+	}
+	long rgb = strtol(hex.c_str() + 1, nullptr, 16);
+	uint8_t r = (rgb >> 16) & 0xFF;
+	uint8_t g = (rgb >> 8) & 0xFF;
+	uint8_t b = rgb & 0xFF;
+	return ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
 }
