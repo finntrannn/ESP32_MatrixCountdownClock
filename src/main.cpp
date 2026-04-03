@@ -46,6 +46,9 @@ void displayTask(void *pvParameters) {
 	int prevScreenMode		   = -1;
 	int prevFireworkMinute	   = -1;
 
+	TickType_t xLastWakeTime	= xTaskGetTickCount();
+	const TickType_t xFrequency = pdMS_TO_TICKS(16);
+
 	for (;;) {
 		unsigned long nowUs = micros();
 		float dt			= (nowUs - lastUpdateUs) / 1000000.0f;
@@ -127,7 +130,7 @@ void displayTask(void *pvParameters) {
 		fireworks.update(dt, display);
 
 		display.flip();
-		vTaskDelay(pdMS_TO_TICKS(10));
+		vTaskDelayUntil(&xLastWakeTime, xFrequency);
 	}
 }
 

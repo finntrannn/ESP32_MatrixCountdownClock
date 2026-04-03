@@ -28,11 +28,12 @@ const uint16_t DisplayManager::kDigits3x5[12] = {
 
 void DisplayManager::begin(int brightness) {
 	HUB75_I2S_CFG mxconfig(Panel::kResX, Panel::kResY, Panel::kChain);
-	mxconfig.double_buff	= true;
-	mxconfig.latch_blanking = 3;
-	mxconfig.i2sspeed		= HUB75_I2S_CFG::HZ_20M;
-	mxconfig.clkphase		= false;
-	panel_					= new MatrixPanel_I2S_DMA(mxconfig);
+	mxconfig.double_buff	  = true;
+	mxconfig.latch_blanking	  = 2;
+	mxconfig.i2sspeed		  = HUB75_I2S_CFG::HZ_20M;
+	mxconfig.clkphase		  = false;
+	mxconfig.min_refresh_rate = 255;
+	panel_					  = new MatrixPanel_I2S_DMA(mxconfig);
 	panel_->begin();
 	panel_->setBrightness8(brightness);
 	panel_->clearScreen();

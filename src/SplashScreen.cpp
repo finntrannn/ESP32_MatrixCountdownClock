@@ -10,7 +10,8 @@
 
 #include "Config.h"
 
-void SplashScreen::play(DisplayManager& display, const String& text, bool force) {
+void SplashScreen::play(DisplayManager& display, const String& text,
+						bool force) {
 	if (!enabled_ && !force) return;
 
 	auto* panel				  = display.getPanel();
