@@ -47,6 +47,8 @@ void AppState::load() {
 											   Defaults::kTextPanelContent);
 	textPanelSpeed_ =
 		preferences_.getInt(NvsKeys::kTxtSpeed, Defaults::kTextPanelSpeed);
+	textPanelSize_ =
+		preferences_.getInt(NvsKeys::kTxtSize, Defaults::kTextPanelSize);
 	textPanelColor_ =
 		preferences_.getString(NvsKeys::kTxtColor, Defaults::kTextPanelColor);
 	textPanelScroll_ =
@@ -228,6 +230,13 @@ void AppState::setTextPanelSpeed(int speed) {
 	if (speed > 10) speed = 10;
 	textPanelSpeed_ = speed;
 	preferences_.putInt(NvsKeys::kTxtSpeed, speed);
+}
+
+void AppState::setTextPanelSize(int size) {
+	if (size < 1) size = 1;
+	if (size > 8) size = 8;
+	textPanelSize_ = size;
+	preferences_.putInt(NvsKeys::kTxtSize, size);
 }
 
 void AppState::setTextPanelColor(const String& color) {

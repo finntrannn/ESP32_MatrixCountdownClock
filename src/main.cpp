@@ -162,7 +162,7 @@ void setup() {
 
 	splash.play(display, appState.getSplashText());
 
-	xTaskCreatePinnedToCore(displayTask, "Display_Task", 8192, nullptr, 2,
+	xTaskCreatePinnedToCore(displayTask, "Display_Task", 8192, nullptr, 5,
 							nullptr, 1);
 }
 

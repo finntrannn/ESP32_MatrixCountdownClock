@@ -90,6 +90,7 @@ static constexpr const char *kTxtTitle = "Cấu hình màn hình văn bản tự
 static constexpr const char *kTxtScroll	 = "Cuộn chữ";
 static constexpr const char *kTxtContent = "Nội dung hiển thị:";
 static constexpr const char *kTxtSpeed	 = "Tốc độ cuộn (1 - 10):";
+static constexpr const char *kTxtSize	 = "Kích thước chữ (1 - 4):";
 static constexpr const char *kTxtColor	 = "Màu chữ:";
 
 // ─── Auto-Cycle Tab ──────────────────────────────────────────────

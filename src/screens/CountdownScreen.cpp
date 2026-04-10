@@ -132,56 +132,32 @@ void CountdownScreen::draw(float dt, DisplayManager &display,
 			panel->setCursor(centerX, 24);
 			panel->print(customText);
 		} else {
-			panel->setCursor((int)textX_, 24);
+			panel->setCursor(scrollPos_, 24);
 			panel->print(customText);
 
-			static uint8_t c_frame_cnt = 0;
-			c_frame_cnt++;
-			int fPS = 1, pPS = 1;
+			int speedNum, speedDen;
 			switch (appState.getTextSpeed()) {
-				case 1:
-					fPS = 6;
-					break;
-				case 2:
-					fPS = 5;
-					break;
-				case 3:
-					fPS = 4;
-					break;
-				case 4:
-					fPS = 3;
-					break;
-				case 5:
-					fPS = 2;
-					break;
-				case 6:
-					fPS = 1;
-					pPS = 1;
-					break;
-				case 7:
-					fPS = 1;
-					pPS = 2;
-					break;
-				case 8:
-					fPS = 1;
-					pPS = 3;
-					break;
-				case 9:
-					fPS = 1;
-					pPS = 4;
-					break;
-				default:
-					fPS = 1;
-					pPS = 5;
-					break;
-			}
-			if (c_frame_cnt >= fPS) {
-				textX_ -= pPS;
-				c_frame_cnt = 0;
+				case 1:  speedNum = 1; speedDen = 4; break;
+				case 2:  speedNum = 1; speedDen = 3; break;
+				case 3:  speedNum = 1; speedDen = 2; break;
+				case 4:  speedNum = 2; speedDen = 3; break;
+				case 5:  speedNum = 3; speedDen = 4; break;
+				case 6:  speedNum = 1; speedDen = 1; break;
+				case 7:  speedNum = 5; speedDen = 4; break;
+				case 8:  speedNum = 3; speedDen = 2; break;
+				case 9:  speedNum = 7; speedDen = 4; break;
+				case 10: speedNum = 2; speedDen = 1; break;
+				default: speedNum = 1; speedDen = 1; break;
 			}
 
-			if (textX_ < -textWidth) {
-				textX_ = static_cast<float>(Panel::kResX);
+			scrollAccum_ += speedNum;
+			int step      = scrollAccum_ / speedDen;
+			scrollAccum_ %= speedDen;
+			scrollPos_   -= step;
+
+			if (scrollPos_ < -textWidth) {
+				scrollPos_ = Panel::kResX;
+				scrollAccum_ = 0;
 			}
 		}
 	}

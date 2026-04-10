@@ -50,6 +50,7 @@ constexpr bool kWifiIcon		= true;	 // Show WiFi status indicator pixel
 constexpr const char *kTextPanelContent = "XIN CHAO";
 constexpr int kTextPanelSpeed			= 5;
 constexpr const char *kTextPanelColor	= "#00FF00";	 // Green hex
+constexpr int kTextPanelSize			= 1;
 constexpr bool kTextPanelScroll			= true;
 
 // Countdown screen colors (hex)
@@ -68,10 +69,10 @@ constexpr bool kShortYear	 = false;
 constexpr int kDateSeparator = 0;  // 0: '/', 1: '.', 2: '-'
 
 // WiFi
-constexpr const char *kStaSSID = "Belvedere";
-constexpr const char *kStaPass = "123789456@";
+constexpr const char *kStaSSID = "YOUR_WIFI_SSID";
+constexpr const char *kStaPass = "YOUR_WIFI_PASSWORD";
 constexpr const char *kApSSID  = "THPT_QG_Config";
-constexpr const char *kApPass  = "12345678@";
+constexpr const char *kApPass  = "12345678";
 
 // Auto-Cycle
 constexpr bool kAutoCycle = false;
@@ -103,6 +104,7 @@ constexpr const char *kSensorBg		= "sensBg";
 constexpr const char *kShowMessage	= "showMsg";
 constexpr const char *kTxtContent	= "txtContent";
 constexpr const char *kTxtSpeed		= "txtSpeed";
+constexpr const char *kTxtSize		= "txtSize";
 constexpr const char *kTxtColor		= "txtColor";
 constexpr const char *kTxtScroll	= "txtScroll";
 constexpr const char *kCdDaysClr	= "cdDaysClr";

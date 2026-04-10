@@ -25,6 +25,7 @@ class CountdownScreen {
 			  const AppState& appState);
 
    private:
-	float textX_			 = 64.0f;
+	int scrollPos_			 = 64;
+	int scrollAccum_         = 0;
 	float borderFloatOffset_ = 0.0f;
 };

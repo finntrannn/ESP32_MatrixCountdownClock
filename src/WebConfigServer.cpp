@@ -510,6 +510,8 @@ function doSpinReset(btn) {
 			state_->getTextPanelContent() + "'>";
 	html += "<label>" + String(kTxtSpeed) + "</label>" +
 			getSlider("txtSpeed", 1, 10, state_->getTextPanelSpeed());
+	html += "<label>" + String(kTxtSize) + "</label>" +
+			getSlider("txtSize", 1, 4, state_->getTextPanelSize());
 	html += "<label>" + String(kTxtColor) + "</label><input type='color' name='txtColor' value='" + state_->getTextPanelColor() + "'>";
 	html += "</div></div></div>";
 
@@ -687,6 +689,7 @@ void WebConfigServer::handleSave(AsyncWebServerRequest *request) {
 
 	if (hasArg("txtContent")) state_->setTextPanelContent(arg("txtContent"));
 	if (hasArg("txtSpeed")) state_->setTextPanelSpeed(arg("txtSpeed").toInt());
+	if (hasArg("txtSize")) state_->setTextPanelSize(arg("txtSize").toInt());
 	if (hasArg("txtColor")) state_->setTextPanelColor(arg("txtColor"));
 	state_->setTextPanelScrollEnabled(hasArg("txtScroll") &&
 									  arg("txtScroll") == "1");

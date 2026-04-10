@@ -33,7 +33,6 @@ void DisplayManager::begin(int brightness) {
 	mxconfig.i2sspeed		  = HUB75_I2S_CFG::HZ_10M;
 	mxconfig.clkphase		  = false;
 	mxconfig.min_refresh_rate = 120;
-	// mxconfig.setPixelColorDepthBits(6);
 	panel_					  = new MatrixPanel_I2S_DMA(mxconfig);
 	panel_->begin();
 	panel_->setBrightness8(brightness);

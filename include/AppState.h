@@ -86,6 +86,9 @@ class AppState {
 	int getTextPanelSpeed() const {
 		return textPanelSpeed_;
 	}
+	int getTextPanelSize() const {
+		return textPanelSize_;
+	}
 	const String& getTextPanelColor() const {
 		return textPanelColor_;
 	}
@@ -211,6 +214,7 @@ class AppState {
 	void setCustomText(const String& text);
 	void setTextPanelContent(const String& text);
 	void setTextPanelSpeed(int speed);
+	void setTextPanelSize(int size);
 	void setTextPanelColor(const String& color);
 	void setTextPanelScrollEnabled(bool enabled);
 	void setCdDaysColor(const String& color);
@@ -266,6 +270,7 @@ class AppState {
 	String customText_		 = "Co len!";
 	String textPanelContent_ = "XIN CHAO";
 	int textPanelSpeed_		 = 5;
+	int textPanelSize_		 = 1;
 	String textPanelColor_	 = "#00FF00";
 	bool textPanelScroll_	 = true;
 	String cdDaysColor_		 = "#FFFF00";
@@ -275,10 +280,10 @@ class AppState {
 	bool shortYear_	   = false;
 	int dateSeparator_ = 0;
 
-	String staSSID_ = "Belvedere";
-	String staPass_ = "123789456@";
+	String staSSID_ = "YOUR_WIFI_SSID";
+	String staPass_ = "YOUR_WIFI_PASSWORD";
 	String apSSID_	= "THPT_QG_Config";
-	String apPass_	= "12345678@";
+	String apPass_	= "12345678";
 
 	bool autoCycle_ = false;
 	int timer0_		= 10;
