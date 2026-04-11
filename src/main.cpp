@@ -61,6 +61,7 @@ void displayTask(void *pvParameters) {
 		if (appState.consumeSplashPlayRequest()) {
 			splash.play(display, appState.getSplashText(), true);
 			lastUpdateUs = micros();
+			xLastWakeTime = xTaskGetTickCount();
 			continue;
 		}
 
