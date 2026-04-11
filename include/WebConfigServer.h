@@ -42,6 +42,7 @@ class WebConfigServer {
 	FireworksEffect* fireworks_ = nullptr;
 
 	void handleRoot(AsyncWebServerRequest* request);
+	void handleGetConfig(AsyncWebServerRequest* request);
 	void handleSave(AsyncWebServerRequest* request);
 	void handleRestart(AsyncWebServerRequest* request);
 	void handleShowSplash(AsyncWebServerRequest* request);
