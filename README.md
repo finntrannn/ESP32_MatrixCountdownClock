@@ -14,6 +14,28 @@ và toàn bộ thông số đều có thể cấu hình được qua giao diện
 
 ---
 
+<div align="center">
+  <img src="demo/demo_1.jpg" alt="Demo 1" width="32%">
+  <img src="demo/demo_2.jpg" alt="Demo 2" width="32%">
+  <img src="demo/demo_3.jpg" alt="Demo 3" width="32%">
+</div>
+
+---
+
+## Mục Lục
+
+- [Tính Năng Chính](#tính-năng-chính)
+- [Chuẩn Bị Phần Cứng](#chuẩn-bị-phần-cứng)
+- [Cài Đặt Code](#cài-đặt-code)
+    - [1. Chuẩn bị môi trường](#1-chuẩn-bị-môi-trường)
+    - [2. Tải Source Code](#2-tải-source-code)
+    - [3. Cấu hình phần cứng (Nếu dùng pinout khác)](#3-cấu-hình-phần-cứng-nếu-dùng-pinout-khác)
+    - [4. Upload Firmware](#4-upload-firmware)
+- [Cấu Hình Bảng Mạch Qua Web](#cấu-hình-bảng-mạch-qua-web)
+- [License](#license)
+
+---
+
 ## Tính Năng Chính
 
 - **Đồng hồ đếm ngược:** Đếm lùi thời gian (Ngày, Giờ, Phút, Giây) đến một sự
@@ -99,6 +121,32 @@ password: `12345678`.
    mục tiêu, tốc độ lướt chữ... rồi bấm **Lưu Cấu Hình**.
 4. Toàn bộ thiết lập này được lưu thẳng vào bộ nhớ ROM vĩnh viễn và mạch sẽ tự
    thay đổi tuỳ chọn cấu hình ra ngoài LED Matrix.
+
+### Các tính năng có thể tùy chỉnh:
+
+Giao diện Web UI cung cấp khả năng điều khiển bao quát hầu hết các tính năng hoạt động của dự án mà không cần nạp lại code:
+
+- **Cài đặt Mạng & Hệ thống:**
+  - Cấu hình WiFi gia đình để mạch tự động đồng bộ giờ qua Internet (NTP).
+  - Đổi tên (SSID) và Mật khẩu Access Point phát ra từ ESP32.
+  - Cập nhật phần mềm không dây (OTA Update) nâng cấp firmware từ xa.
+- **Chế độ Màn hình & Hiệu ứng lặp:**
+  - Chuyển màn hình thủ công (Đếm ngược, Cảm biến, Lịch, Cuộn chữ, Random Spinner).
+  - Thiết lập vòng lặp (Auto-Cycle): cài đặt thời gian dừng ở từng màn hình, hoặc loại bỏ các màn hình không muốn hiển thị vòng lặp.
+- **Custom màn hình Đếm Ngược:**
+  - Chọn ngày, giờ đích đến (Target Time) dễ dàng bằng giao diện đồ hoạ.
+  - Bật/tắt đếm giây, bật/tắt năm, ngăn cách hiển thị theo định dạng `/`, `.`, `-`.
+  - Thay đổi màu sắc Số Ngày và Thời gian bằng bộ chọn màu (Color Picker).
+  - Tích hợp thay đổi câu chúc, lời động viên phía dưới.
+- **Giao diện & Hiệu ứng Khác:**
+  - Điều chỉnh độ sáng tổng màn hình LED.
+  - Màn hình chữ cuộn mát-trận (Text Matrix): Tự gõ văn bản, chỉnh cỡ chữ, tốc độ và màu sắc, cuộn theo mọi hướng.
+  - Bật/tắt thanh LED viền cầu vồng (Rainbow border) quanh đồng hồ, điều chỉnh vận tốc nhấp nháy viền.
+  - Bật/tắt hiển thị màn hình khởi động (Splash Screen), tùy ý thay đổi nội dung chữ chào mừng.
+  - Bật/tắt icon trạng thái sóng WiFi.
+- **Tiện ích Giải trí:**
+  - Chế độ chọn số ngẫu nhiên (Random Spinner): Thiết lập Max/Min, bộ thời gian lướt số để gọi số chơi lô tô, bốc thăm may mắn trong các dịp lễ tết.
+  - Chế độ lập lịch pháo hoa (Fireworks Schedule): Hẹn giờ bắn pháo hoa độc lập liên tục trong một khoảng giờ cụ thể theo thời gian thực tế.
 
 ---
 
