@@ -159,6 +159,9 @@ body{font-family:'Segoe UI',Roboto,Helvetica,sans-serif;margin:0;padding:0;backg
 .section{background:#fff;padding:22px;border-radius:12px;height:fit-content;box-shadow:0 2px 8px rgba(0,0,0,.04);border:1px solid #eaeaea;}
 .section h3{margin:0 0 18px;font-size:16px;color:#1c1e21;border-bottom:2px solid #f0f2f5;padding-bottom:10px;font-weight:700;}
 input:not([type='file']):not([type='radio']):not([type='checkbox']):not([type='range']),select{box-sizing:border-box;width:100%;padding:10px 8px 10px 10px;margin:4px 0 16px;border-radius:8px;border:1px solid #ccd0d5;background:#fff;color:#1c1e21;font-size:15px;outline:none;transition:border .2s;}
+input[type='color']{height:46px;padding:3px;cursor:pointer;}
+input[type='color']::-webkit-color-swatch-wrapper{padding:0;}
+input[type='color']::-webkit-color-swatch{border:none;border-radius:5px;}
 input:focus,select:focus{border-color:#0056b3;}
 
 .sg{display:flex;align-items:center;gap:8px;margin:4px 0 16px;}

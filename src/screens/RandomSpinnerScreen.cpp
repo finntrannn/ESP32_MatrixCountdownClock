@@ -155,25 +155,31 @@ void RandomSpinnerScreen::draw(float dt, DisplayManager& display,
 
 			// Slow down cycling as we approach the end
 			float progress = spinTimer_ / spinDuration_;
-			float interval = 0.03f + progress * progress * 0.25f;
+			// Đường cong cubic easing để hiệu ứng chậm dần rõ rệt và mượt mà hơn
+			float cubic = progress * progress * progress;
+			float interval = 0.03f + cubic * 0.5f;
 
 			if (flickerTimer_ >= interval) {
 				flickerTimer_ = 0.0f;
-				// Generate random display number
-				currentDisplayNum_ = random(minVal, maxVal + 1);
-			}
-
-			// Near the end, snap to final result
-			if (progress > 0.92f) {
-				currentDisplayNum_ = finalResult_;
+				
+				// Nếu tick này là tick cuối cùng trước khi hết giờ, hiển thị kết quả luôn
+				if (spinTimer_ + interval >= spinDuration_) {
+					currentDisplayNum_ = finalResult_;
+				} else {
+					// Generate random display number, avoid showing same number twice
+					int rNum = random(minVal, maxVal + 1);
+					if (rNum == currentDisplayNum_ && maxVal > minVal) {
+						rNum = minVal + (rNum - minVal + 1) % (maxVal - minVal + 1);
+					}
+					currentDisplayNum_ = rNum;
+				}
 			}
 
 			// Draw the cycling number with color based on progress
 			uint8_t r = 255;
 			uint8_t g = (uint8_t)(255 * (1.0f - progress));
 			uint8_t b = (uint8_t)(100 * progress);
-			drawNumber(display, currentDisplayNum_,
-					   panel->color565(r, g, b));
+			drawNumber(display, currentDisplayNum_, panel->color565(r, g, b));
 
 			if (spinTimer_ >= spinDuration_) {
 				state_			  = RESULT;
@@ -193,37 +199,37 @@ void RandomSpinnerScreen::draw(float dt, DisplayManager& display,
 		case RESULT: {
 			resultFlashTimer_ += dt;
 
-			// Win flash effect: alternating bright colors
-			float flash	  = resultFlashTimer_ * 4.0f;
-			int flashPhase = ((int)flash) % 2;
-
 			uint16_t numColor;
-			if (resultFlashTimer_ < 2.0f) {
-				// Flash phase
-				numColor = flashPhase ? panel->color565(255, 255, 0)
-									  : panel->color565(255, 50, 50);
-			} else {
-				// Steady golden color
-				numColor = panel->color565(255, 215, 0);
+
+			// Tạm dừng 0.8s để người chơi nhìn rõ số trúng thưởng (giữ nguyên màu giống lúc vừa dừng quay)
+			if (resultFlashTimer_ < 0.8f) {
+				numColor = panel->color565(255, 0, 100);
+				drawNumber(display, finalResult_, numColor);
 			}
+			// Bắt đầu chớp nháy ăn mừng trong 2.2 giây tiếp theo
+			else if (resultFlashTimer_ < 3.0f) {
+				float flash	   = (resultFlashTimer_ - 0.8f) * 6.0f;
+				int flashPhase = ((int)flash) % 2;
 
-			drawNumber(display, finalResult_, numColor);
+				// Chớp màu chữ vàng đỏ
+				numColor = flashPhase ? panel->color565(255, 255, 0)
+									  : panel->color565(255, 100, 50);
+				drawNumber(display, finalResult_, numColor);
 
-			// Draw decorative border flash for first 2 seconds
-			if (resultFlashTimer_ < 2.0f) {
+				// Chớp đèn viền chạy quanh
 				uint16_t borderClr = flashPhase
-										 ? panel->color565(255, 100, 0)
-										 : panel->color565(0, 255, 100);
-				// Top and bottom lines
+										 ? panel->color565(255, 150, 0)
+										 : panel->color565(0, 200, 255);
 				panel->drawFastHLine(0, 0, 64, borderClr);
 				panel->drawFastHLine(0, 31, 64, borderClr);
 				panel->drawFastVLine(0, 0, 32, borderClr);
 				panel->drawFastVLine(63, 0, 32, borderClr);
 			}
-
-			// Show "TRUNG!" text below number
-			// drawCenteredText(display, "TRUNG!", 26,
-			// 				 panel->color565(50, 255, 50));
+			// Trở về trạng thái tĩnh màu vàng kim sau khi nháy xong
+			else {
+				numColor = panel->color565(255, 215, 0);
+				drawNumber(display, finalResult_, numColor);
+			}
 			break;
 		}
 	}
