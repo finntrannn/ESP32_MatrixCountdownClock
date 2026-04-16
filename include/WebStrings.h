@@ -12,126 +12,119 @@
 namespace WebUI {
 
 // ─── Page & Sidebar ──────────────────────────────────────────────
-static constexpr const char *kPageTitle = "Bảng Điều Khiển Đồng Hồ";
-static constexpr const char *kSidebarTitle	= "Bảng Điều Khiển";
-static constexpr const char *kNavDisplay	= "Màn hình & hiển thị";
-static constexpr const char *kNavGeneral	= "Cấu hình chung";
-static constexpr const char *kNavCountdown	= "MH Đếm ngược";
-static constexpr const char *kNavSensor		= "MH Nhiệt độ & độ ẩm";
-static constexpr const char *kNavDateTime	= "MH Ngày & giờ";
-static constexpr const char *kNavText		= "MH Văn bản tự do";
-static constexpr const char *kNavWifi		= "Cài đặt WiFi";
-static constexpr const char *kNavAutomation = "Tự động & lịch";
-static constexpr const char *kNavOta		= "Cập nhật phần mềm";
+#define kPageTitle "Bảng Điều Khiển Đồng Hồ"
+#define kSidebarTitle "Bảng Điều Khiển"
+#define kNavDisplay "Màn hình & hiển thị"
+#define kNavGeneral "Cấu hình chung"
+#define kNavCountdown "MH Đếm ngược"
+#define kNavSensor "MH Nhiệt độ & độ ẩm"
+#define kNavDateTime "MH Ngày & giờ"
+#define kNavText "MH Văn bản tự do"
+#define kNavWifi "Cài đặt WiFi"
+#define kNavAutomation "Tự động & lịch"
+#define kNavOta "Cập nhật phần mềm"
 
 // ─── Top Action Buttons ──────────────────────────────────────────
-static constexpr const char *kBtnSave		 = "Lưu";
-static constexpr const char *kBtnTestSplash	 = "Test Splash";
-static constexpr const char *kBtnRestart	 = "Khởi Động Lại";
-static constexpr const char *kConfirmRestart = "Khởi động lại ESP32?";
+#define kBtnSave "Lưu"
+#define kBtnTestSplash "Test Splash"
+#define kBtnRestart "Khởi Động Lại"
+#define kConfirmRestart "Khởi động lại ESP32?"
 
 // ─── System & WiFi Tab ───────────────────────────────────────────
-static constexpr const char *kWifiStaTitle =
-	"Cấu hình WiFi (WiFi mà bảng LED này sẽ kết nối)";
-static constexpr const char *kWifiStaSsid = "Tên WiFi:";
-static constexpr const char *kWifiStaPass = "Mật khẩu:";
-static constexpr const char *kWifiApTitle =
-	"Cấu hình điểm truy cập WiFi (WiFi mà bảng LED này sẽ phát ra)";
-static constexpr const char *kWifiApSsid = "Tên WiFi:";
-static constexpr const char *kWifiApPass = "Mật khẩu:";
+#define kWifiStaTitle "Cấu hình WiFi (WiFi mà bảng LED này sẽ kết nối)"
+#define kWifiStaSsid "Tên WiFi:"
+#define kWifiStaPass "Mật khẩu:"
+#define kWifiApTitle "Cấu hình điểm truy cập WiFi (WiFi mà bảng LED này sẽ phát ra)"
+#define kWifiApSsid "Tên WiFi:"
+#define kWifiApPass "Mật khẩu:"
 
 // ─── General Display Tab ─────────────────────────────────────────
-static constexpr const char *kGenTitle = "Cài đặt chung";
-static constexpr const char *kGenLedOn = "Bật màn hình LED";
-static constexpr const char *kGenSplashOn =
-	"Hiển thị splash screen lúc khởi động";
-static constexpr const char *kGenSplashText =
-	"Nội dung Splash Screen (tối đa ~10 ký tự):";
-static constexpr const char *kGenWifiIcon = "Hiển thị biểu tượng WiFi";
-static constexpr const char *kGenBrightness = "Độ sáng màn hình (1 - 255):";
-static constexpr const char *kGenScreenTitle = "Chế độ màn hình hiện tại";
-static constexpr const char *kGenScreenNote =
-	"Chỉ có tác dụng khi \"Tự động chuyển màn hình\" bị TẮT.";
-static constexpr const char *kScrCountdown = "Đếm ngược";
-static constexpr const char *kScrSensor	   = "Đo nhiệt độ & độ ẩm";
-static constexpr const char *kScrDateTime  = "Ngày & giờ";
-static constexpr const char *kScrText	   = "Văn bản tự do";
-static constexpr const char *kScrSpinner   = "Quay số";
+#define kGenTitle "Cài đặt chung"
+#define kGenLedOn "Bật màn hình LED"
+#define kGenSplashOn "Hiển thị splash screen lúc khởi động"
+#define kGenSplashText "Nội dung Splash Screen (tối đa ~10 ký tự):"
+#define kGenWifiIcon "Hiển thị biểu tượng WiFi"
+#define kGenBrightness "Độ sáng màn hình (1 - 255):"
+#define kGenScreenTitle "Chế độ màn hình hiện tại"
+#define kGenScreenNote "Chỉ có tác dụng khi \"Tự động chuyển màn hình\" bị TẮT."
+#define kScrCountdown "Đếm ngược"
+#define kScrSensor "Đo nhiệt độ & độ ẩm"
+#define kScrDateTime "Ngày & giờ"
+#define kScrText "Văn bản tự do"
+#define kScrSpinner "Quay số"
 
 // ─── Countdown Tab ───────────────────────────────────────────────
-static constexpr const char *kCdTitle = "Cấu hình màn hình đếm ngược";
-static constexpr const char *kCdShowSec = "Hiển thị số giây";
-static constexpr const char *kCdShowMsg = "Hiển thị lời nhắn";
-static constexpr const char *kCdRainbow = "Bật hiệu ứng viền cầu vồng";
-static constexpr const char *kCdTarget	= "Ngày/giờ mục tiêu:";
-static constexpr const char *kCdMessage = "Lời nhắn:";
-static constexpr const char *kCdTextSpeed = "Tốc độ chữ chạy (1 - 10):";
-static constexpr const char *kCdRainbowSpeed = "Tốc độ viền cầu vồng (1 - 10):";
-static constexpr const char *kCdColorTitle = "Màu sắc";
-static constexpr const char *kCdDaysColor  = "Màu chữ \"CÒN... NGÀY...\":";
-static constexpr const char *kCdTimeColor  = "Màu chữ giờ phút giây:";
+#define kCdTitle "Cấu hình màn hình đếm ngược"
+#define kCdShowSec "Hiển thị số giây"
+#define kCdShowMsg "Hiển thị lời nhắn"
+#define kCdRainbow "Bật hiệu ứng viền cầu vồng"
+#define kCdTarget "Ngày/giờ mục tiêu:"
+#define kCdMessage "Lời nhắn:"
+#define kCdTextSpeed "Tốc độ chữ chạy (1 - 10):"
+#define kCdRainbowSpeed "Tốc độ viền cầu vồng (1 - 10):"
+#define kCdColorTitle "Màu sắc"
+#define kCdDaysColor "Màu chữ \"CÒN... NGÀY...\":"
+#define kCdTimeColor "Màu chữ giờ phút giây:"
 
 // ─── Sensor Tab ──────────────────────────────────────────────────
-static constexpr const char *kSenTitle = "Cấu hình màn hình nhiệt độ & độ ẩm";
-static constexpr const char *kSenBg = "Bật nền phía sau của độ ẩm";
+#define kSenTitle "Cấu hình màn hình nhiệt độ & độ ẩm"
+#define kSenBg "Bật nền phía sau của độ ẩm"
 
 // ─── DateTime Tab ────────────────────────────────────────────────
-static constexpr const char *kDtTitle = "Cấu hình màn hình ngày & giờ";
-static constexpr const char *kDtShowYear = "Hiển thị số năm";
-static constexpr const char *kDtShortYear = "Rút gọn năm (24 thay vì 2024)";
-static constexpr const char *kDtShowSec	  = "Hiển thị số giây";
-static constexpr const char *kDtSeparator = "Kiểu phân cách ngày:";
-static constexpr const char *kDtSepSlash  = "Dấu chéo (20/11)";
-static constexpr const char *kDtSepDot	  = "Dấu chấm (20.11)";
-static constexpr const char *kDtSepDash	  = "Dấu gạch (20-11)";
+#define kDtTitle "Cấu hình màn hình ngày & giờ"
+#define kDtShowYear "Hiển thị số năm"
+#define kDtShortYear "Rút gọn năm (24 thay vì 2024)"
+#define kDtShowSec "Hiển thị số giây"
+#define kDtSeparator "Kiểu phân cách ngày:"
+#define kDtSepSlash "Dấu chéo (20/11)"
+#define kDtSepDot "Dấu chấm (20.11)"
+#define kDtSepDash "Dấu gạch (20-11)"
 
 // ─── Text Panel Tab ──────────────────────────────────────────────
-static constexpr const char *kTxtTitle = "Cấu hình màn hình văn bản tự do";
-static constexpr const char *kTxtScroll	 = "Cuộn chữ";
-static constexpr const char *kTxtContent = "Nội dung hiển thị:";
-static constexpr const char *kTxtSpeed	 = "Tốc độ cuộn (1 - 10):";
-static constexpr const char *kTxtSize	 = "Kích thước chữ (1 - 4):";
-static constexpr const char *kTxtColor	 = "Màu chữ:";
+#define kTxtTitle "Cấu hình màn hình văn bản tự do"
+#define kTxtScroll "Cuộn chữ"
+#define kTxtContent "Nội dung hiển thị:"
+#define kTxtSpeed "Tốc độ cuộn (1 - 10):"
+#define kTxtSize "Kích thước chữ (1 - 4):"
+#define kTxtColor "Màu chữ:"
 
 // ─── Auto-Cycle Tab ──────────────────────────────────────────────
-static constexpr const char *kAutoTitle = "Kịch bản màn hình";
-static constexpr const char *kAutoEnable = "Bật tự động chuyển màn hình?";
+#define kAutoTitle "Kịch bản màn hình"
+#define kAutoEnable "Bật tự động chuyển màn hình?"
 static constexpr const char *kAutoNote =
 	"0: Đếm ngược<br>1: Nhiệt độ & độ ẩm<br>2: Ngày & giờ<br>3: Văn bản tự "
 	"do.<br>4: Quay số.<br>VD: \"0,2,0\" sẽ lặp Đếm ngược -> Ngày & giờ -> Đếm ngược.";
-static constexpr const char *kAutoSeqLabel = "Thứ tự hiển thị:";
-static constexpr const char *kAutoTimersTitle = "Thời gian trình chiếu (giây)";
-static constexpr const char *kFwTitle = "Lịch hiển thị pháo hoa";
-static constexpr const char *kFwNote =
-	"Cách nhau bởi \";\". VD: 10:35,5;08:40,10";
-static constexpr const char *kFwLabel	= "Chuỗi lịch pháo hoa:";
-static constexpr const char *kFwTestBtn = "Bắn thử pháo hoa";
+#define kAutoSeqLabel "Thứ tự hiển thị:"
+#define kAutoTimersTitle "Thời gian trình chiếu (giây)"
+#define kFwTitle "Lịch hiển thị pháo hoa"
+#define kFwNote "Cách nhau bởi \"\". VD: 10:35,5;08:40,10";
+#define kFwLabel "Chuỗi lịch pháo hoa:"
+#define kFwTestBtn "Bắn thử pháo hoa"
 
 // ─── OTA Tab ─────────────────────────────────────────────────────
-static constexpr const char *kOtaTitle = "Cập nhật phần mềm (OTA)";
+#define kOtaTitle "Cập nhật phần mềm (OTA)"
 static constexpr const char *kOtaNote =
 	"Tải file firmware (.bin) từ PlatformIO để nâng cấp qua WiFi. Cài đặt sẽ "
 	"được giữ nguyên. Bảng LED sẽ tự khởi động lại.";
-static constexpr const char *kOtaBtn	   = "Bắt đầu cập nhật";
-static constexpr const char *kOtaUploading = "Đang tải lên: ";
-static constexpr const char *kOtaSuccess = "Hoàn tất! Đang khởi động lại...";
-static constexpr const char *kOtaError = "Lỗi mất kết nối!";
+#define kOtaBtn "Bắt đầu cập nhật"
+#define kOtaUploading "Đang tải lên: "
+#define kOtaSuccess "Hoàn tất! Đang khởi động lại..."
+#define kOtaError "Lỗi mất kết nối!"
 
 // ─── Spinner Tab ─────────────────────────────────────────────────
-static constexpr const char *kSpinTitle	  = "Cấu hình màn hình quay số";
-static constexpr const char *kSpinRange	  = "Phạm vi số:";
-static constexpr const char *kSpinMin	  = "Từ:";
-static constexpr const char *kSpinMax	  = "Đến:";
-static constexpr const char *kSpinDur	  = "Thời gian quay (giây):";
-static constexpr const char *kSpinBtn	  = "Quay số";
-static constexpr const char *kSpinReset	  = "Chơi lại (Reset)";
-static constexpr const char *kNavSpinner  = "MH Quay số";
+#define kSpinTitle "Cấu hình màn hình quay số"
+#define kSpinRange "Phạm vi số:"
+#define kSpinMin "Từ:"
+#define kSpinMax "Đến:"
+#define kSpinDur "Thời gian quay (giây):"
+#define kSpinBtn "Quay số"
+#define kSpinReset "Chơi lại (Reset)"
+#define kNavSpinner "MH Quay số"
 
 // ─── Restart / Splash pages ──────────────────────────────────────
-static constexpr const char *kRestartMsg = "Đang khởi động lại...";
-static constexpr const char *kRestartNote =
-	"Vui lòng đợi vài giây và kết nối lại WiFi.";
-static constexpr const char *kSplashMsg = "Đang trình diễn Splash Screen...";
-static constexpr const char *kSplashNote = "Tự động quay lại sau 10 giây.";
+#define kRestartMsg "Đang khởi động lại..."
+#define kRestartNote "Vui lòng đợi vài giây và kết nối lại WiFi."
+#define kSplashMsg "Đang trình diễn Splash Screen..."
+#define kSplashNote "Tự động quay lại sau 10 giây."
 
 }  // namespace WebUI
