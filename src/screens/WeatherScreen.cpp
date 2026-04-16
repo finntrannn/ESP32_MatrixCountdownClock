@@ -1,16 +1,16 @@
 /**
- * @file SensorScreen.cpp
+ * @file WeatherScreen.cpp
  * @brief Renders the DHT11 Temperature & Humidity interface.
  *
  * @author finntrannn (finntrannn.id.vn)
  * @github https://github.com/finntrannn
  */
 
-#include "screens/SensorScreen.h"
+#include "screens/WeatherScreen.h"
 
 #include "Config.h"
 
-void SensorScreen::resetAnimations() {
+void WeatherScreen::resetAnimations() {
 	sensorBarSmooth_t_ = 0.0f;
 	sensorBarSmooth_h_ = 0.0f;
 }
@@ -147,7 +147,7 @@ static void drawSunIcon(MatrixPanel_I2S_DMA* panel, int x, int y, uint16_t color
 	panel->drawPixel(x+7, y+7, color); panel->drawPixel(x+6, y+6, color);
 }
 
-void SensorScreen::draw(float dt, DisplayManager& display,
+void WeatherScreen::draw(float dt, DisplayManager& display,
 						const DHTSensor& dhtSensor, const AppState& appState) {
 	auto* panel = display.getPanel();
 

@@ -20,7 +20,7 @@
 #include "screens/CountdownScreen.h"
 #include "screens/DateTimeScreen.h"
 #include "screens/RandomSpinnerScreen.h"
-#include "screens/SensorScreen.h"
+#include "screens/WeatherScreen.h"
 #include "screens/TextScreen.h"
 #include "WeatherManager.h"
 
@@ -36,7 +36,7 @@ static WeatherManager weatherManager;
 
 // ─── Screen Instances ────────────────────────────────────────────────
 static CountdownScreen countdownScreen;
-static SensorScreen sensorScreen;
+static WeatherScreen weatherScreen;
 static DateTimeScreen dateTimeScreen;
 static TextScreen textScreen;
 static RandomSpinnerScreen spinnerScreen;
@@ -80,14 +80,14 @@ void displayTask(void *pvParameters) {
 		int currentMode = appState.getScreenMode();
 		if (currentMode != prevScreenMode) {
 			if (currentMode == 1)
-				sensorScreen.resetAnimations();
+				weatherScreen.resetAnimations();
 			else if (currentMode == 3)
 				textScreen.resetAnimations();
 			prevScreenMode = currentMode;
 		}
 
 		if (currentMode == 1)
-			sensorScreen.draw(dt, display, dhtSensor, appState);
+			weatherScreen.draw(dt, display, dhtSensor, appState);
 		else if (currentMode == 2)
 			dateTimeScreen.draw(dt, display, timeManager, appState);
 		else if (currentMode == 3)

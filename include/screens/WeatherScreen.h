@@ -1,5 +1,5 @@
 /**
- * @file SensorScreen.h
+ * @file WeatherScreen.h
  * @brief Renders the DHT11 Temperature & Humidity interface.
  *
  * @author finntrannn (finntrannn.id.vn)
@@ -11,8 +11,7 @@
 #include "AppState.h"
 #include "DHTSensor.h"
 #include "DisplayManager.h"
-
-class SensorScreen {
+class WeatherScreen {
    public:
 	/**
 	 * @brief Resets the slide-in animation state (called when switching to this
