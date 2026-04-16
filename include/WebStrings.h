@@ -69,6 +69,11 @@ namespace WebUI {
 // ─── Sensor Tab ──────────────────────────────────────────────────
 #define kSenTitle "Cấu hình màn hình nhiệt độ & độ ẩm"
 #define kSenBg "Bật nền phía sau của độ ẩm"
+#define kSenWeatherTitle "Thời Tiết Thực Tế (Mạng)"
+#define kSenOpenMeteo "Bật thời tiết thực tế (Open-Meteo)"
+#define kSenWeatherNote "Cần 15p để đồng bộ dữ liệu mỗi lần bật máy."
+#define kSenLat "Vĩ độ (Latitude):"
+#define kSenLon "Kinh độ (Longitude):"
 
 // ─── DateTime Tab ────────────────────────────────────────────────
 #define kDtTitle "Cấu hình màn hình ngày & giờ"
@@ -94,10 +99,14 @@ namespace WebUI {
 #define kAutoNote \
 	"0: Đếm ngược<br>1: Nhiệt độ & độ ẩm<br>2: Ngày & giờ<br>3: Văn bản tự " \
 	"do.<br>4: Quay số.<br>VD: \"0,2,0\" sẽ lặp Đếm ngược -> Ngày & giờ -> Đếm ngược."
-#define kAutoSeqLabel "Thứ tự hiển thị:"
-#define kAutoTimersTitle "Thời gian trình chiếu (giây)"
+#define kAutoSeqLabel "Chuỗi trình tự lặp (phân tách qua dấu phẩy):"
+#define kAutoTimersTitle "Thời gian chốt lại (giây/màn hình)"
+#define kTimerSensor "Cảm biến"
+#define kTimerDateTime "Ngày giờ"
+#define kTimerText "Văn bản"
+#define kTimerSpinner "Quay Lô tô"
 #define kFwTitle "Lịch hiển thị pháo hoa"
-#define kFwNote "Cách nhau bởi \"\". VD: 10:35,5;08:40,10";
+#define kFwNote "Cách nhau bởi \";\". VD: 10:35,5;08:40,10"
 #define kFwLabel "Chuỗi lịch pháo hoa:"
 #define kFwTestBtn "Bắn thử pháo hoa"
 
@@ -117,11 +126,14 @@ namespace WebUI {
 #define kSpinMin "Từ:"
 #define kSpinMax "Đến:"
 #define kSpinDur "Thời gian quay (giây):"
+#define kSpinManualTitle "Điều khiển thủ công"
+#define kSpinMin2 "Min (Bắt đầu):"
+#define kSpinMax2 "Max (Kết thúc):"
+#define kSpinDur2 "Thời lượng chạy số trớn (giây):"
 #define kSpinBtn "Quay số"
 #define kSpinReset "Chơi lại (Reset)"
 #define kNavSpinner "MH Quay số"
 
-// ─── Restart / Splash pages ──────────────────────────────────────
 #define kRestartMsg "Đang khởi động lại..."
 #define kRestartNote "Vui lòng đợi vài giây và kết nối lại WiFi."
 #define kSplashMsg "Đang trình diễn Splash Screen..."
