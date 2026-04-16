@@ -91,9 +91,9 @@ namespace WebUI {
 // ─── Auto-Cycle Tab ──────────────────────────────────────────────
 #define kAutoTitle "Kịch bản màn hình"
 #define kAutoEnable "Bật tự động chuyển màn hình?"
-static constexpr const char *kAutoNote =
-	"0: Đếm ngược<br>1: Nhiệt độ & độ ẩm<br>2: Ngày & giờ<br>3: Văn bản tự "
-	"do.<br>4: Quay số.<br>VD: \"0,2,0\" sẽ lặp Đếm ngược -> Ngày & giờ -> Đếm ngược.";
+#define kAutoNote \
+	"0: Đếm ngược<br>1: Nhiệt độ & độ ẩm<br>2: Ngày & giờ<br>3: Văn bản tự " \
+	"do.<br>4: Quay số.<br>VD: \"0,2,0\" sẽ lặp Đếm ngược -> Ngày & giờ -> Đếm ngược."
 #define kAutoSeqLabel "Thứ tự hiển thị:"
 #define kAutoTimersTitle "Thời gian trình chiếu (giây)"
 #define kFwTitle "Lịch hiển thị pháo hoa"
@@ -103,9 +103,9 @@ static constexpr const char *kAutoNote =
 
 // ─── OTA Tab ─────────────────────────────────────────────────────
 #define kOtaTitle "Cập nhật phần mềm (OTA)"
-static constexpr const char *kOtaNote =
-	"Tải file firmware (.bin) từ PlatformIO để nâng cấp qua WiFi. Cài đặt sẽ "
-	"được giữ nguyên. Bảng LED sẽ tự khởi động lại.";
+#define kOtaNote \
+	"Tải file firmware (.bin) từ PlatformIO để nâng cấp qua WiFi. Cài đặt sẽ " \
+	"được giữ nguyên. Bảng LED sẽ tự khởi động lại."
 #define kOtaBtn "Bắt đầu cập nhật"
 #define kOtaUploading "Đang tải lên: "
 #define kOtaSuccess "Hoàn tất! Đang khởi động lại..."

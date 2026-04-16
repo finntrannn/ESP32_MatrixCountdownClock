@@ -1,3 +1,11 @@
+/**
+ * @file WebUI_Static.h
+ * @brief Compiled-in HTML/CSS/JS for the web configuration portal.
+ *
+ * @author finntrannn (finntrannn.id.vn)
+ * @github https://github.com/finntrannn
+ */
+
 #pragma once
 
 #include "WebStrings.h"
@@ -398,7 +406,7 @@ const char HTML_UI_STATIC[] PROGMEM =
 "    <div id='tab_auto' class='tab-content'><div class='grid'>\n"
 "      <div class='section'><h3>" kAutoTitle "</h3>\n"
 "        <label class='chk'><input type='checkbox' name='autoCycle' value='1'> " kAutoEnable "</label>\n"
-"        <span class='note'>0: " kScrCountdown ", 1: Cảm biến, 2: Lịch, 3: Văn bản, 4: Lô tô.<br>VD: \"0,2,0\" để chỉ xoay vòng " kScrCountdown " & Lịch.</span>\n"
+"        <span class='note'>" kAutoNote "</span>\n"
 "        <label>Chuỗi trình tự lặp (phân tách qua dấu phẩy):</label><input type='text' name='cycleSeq' placeholder='0,1,2,3,4'>\n"
 "        <h3 style='margin-top:20px;'>Thời gian chốt lại (giây/màn hình)</h3>\n"
 "        <label>" kScrCountdown ":</label><div class='sg'><input type='range' id='r_timer0' name='timer0' min='0' max='120' oninput='syncS(\"n_timer0\", this.value)'><input type='number' id='n_timer0' min='0' max='120' oninput='syncS(\"r_timer0\", this.value)'></div>\n"
@@ -428,7 +436,7 @@ const char HTML_UI_STATIC[] PROGMEM =
 "\n"
 "    <div id='tab_ota' class='tab-content'><div class='grid'>\n"
 "      <div class='section'><h3>" kOtaTitle "</h3>\n"
-"        <span class='note'>Update Firmware trực tiếp qua BIN. Thông số bộ nhớ đệm an toàn tự giữ lại. Mạch sẽ restart sau khi load xong.</span>\n"
+"        <span class='note'>" kOtaNote "</span>\n"
 "        <input type='file' id='firmwareInput' accept='.bin' style='padding:10px;border:1px dashed #0056b3;border-radius:8px;'>\n"
 "        <button type='button' onclick='uploadFirmware()' class='btn-small' style='background:#28a745;margin-top:10px;width:100%;'>" kOtaBtn "</button>\n"
 "        <progress id='uploadProgress' max='100' value='0'></progress>\n"

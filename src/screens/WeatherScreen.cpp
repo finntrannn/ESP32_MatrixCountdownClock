@@ -1,6 +1,6 @@
 /**
  * @file WeatherScreen.cpp
- * @brief Renders the DHT11 Temperature & Humidity interface.
+ * @brief Renders the indoor/outdoor weather dashboard (DHT11 + Open-Meteo).
  *
  * @author finntrannn (finntrannn.id.vn)
  * @github https://github.com/finntrannn

@@ -2,11 +2,6 @@
  * @file TextScreen.cpp
  * @brief Implementation of free-form text display with Vietnamese font.
  *
- * Scrolling uses a Bresenham-style integer accumulator to distribute
- * pixel steps as evenly as possible across frames.  This avoids all
- * float-to-int truncation artifacts that cause visible judder on a
- * discrete LED pixel grid.
- *
  * @author finntrannn (finntrannn.id.vn)
  * @github https://github.com/finntrannn
  */
@@ -37,8 +32,7 @@ void TextScreen::draw(float dt, DisplayManager& display,
 		lastScrollEnabled_ = scrollEnabled;
 		lastSize_          = textPanelSize;
 
-		// Bind temporarily to existing panel just to get width dimension 
-		// (U8G2 needs any GFX binding to calculate UTF8 width)
+		// Get text width before allocating canvas
 		u8g2_for_adafruit_gfx.begin(*panel);
 		u8g2_for_adafruit_gfx.setFont(u8g2_font_unifont_t_vietnamese1);
 		cachedTextWidth_ = u8g2_for_adafruit_gfx.getUTF8Width(text.c_str());
@@ -57,14 +51,13 @@ void TextScreen::draw(float dt, DisplayManager& display,
 			canvasHeight_ = 32 / textPanelSize;
 		}
 
-		// Allocate new 1-bit memory canvas (highly efficient)
+		// Allocate 1-bit offscreen canvas
 		textCanvas_ = new GFXcanvas1(canvasWidth_, canvasHeight_);
 		textCanvas_->fillScreen(0);
 
-		// Permanently bind U8G2 to the hidden canvas for this string
 		u8g2_for_adafruit_gfx.begin(*textCanvas_);
 		u8g2_for_adafruit_gfx.setFont(u8g2_font_unifont_t_vietnamese1);
-		u8g2_for_adafruit_gfx.setForegroundColor(1); // 1 = ON for monochrome
+		u8g2_for_adafruit_gfx.setForegroundColor(1);
 		u8g2_for_adafruit_gfx.setFontMode(0);
 
 		if (scrollEnabled) {
@@ -179,7 +172,7 @@ void TextScreen::draw(float dt, DisplayManager& display,
 				scrollAccum_ = 0;
 			}
 
-			// Viewport-aware lightning-fast memory blit with scaling feature
+			// Viewport-clipped blit with scaling
 			int baseYOffset = (displayHeight - scaledHeight) / 2;
 			int i_start = -scrollPos_ / size;
 			if (i_start < 0) i_start = 0;
