@@ -71,6 +71,24 @@ class AppState {
 	bool isSensorBgEnabled() const {
 		return sensorBgEnabled_;
 	}
+	bool isOpenMeteoEnabled() const {
+		return openMeteoEnabled_;
+	}
+	float getWeatherLat() const {
+		return weatherLat_;
+	}
+	float getWeatherLon() const {
+		return weatherLon_;
+	}
+	float getRealTemp() const {
+		return realTemp_;
+	}
+	float getRealHumi() const {
+		return realHumi_;
+	}
+	bool isRealDataValid() const {
+		return realDataValid_;
+	}
 	bool isShowMessageEnabled() const {
 		return showMessageEnabled_;
 	}
@@ -209,6 +227,16 @@ class AppState {
 		screenMode_ = mode;
 	}  // Does not save to flash (Anti-wear for auto-cycle)
 	void setSensorBgEnabled(bool enabled);
+	void setOpenMeteoEnabled(bool enabled);
+	void setWeatherLat(float lat);
+	void setWeatherLon(float lon);
+	void setRealWeatherData(float temp, float humi, bool valid) {
+		lock();
+		realTemp_ = temp;
+		realHumi_ = humi;
+		realDataValid_ = valid;
+		unlock();
+	}
 	void setShowMessageEnabled(bool enabled);
 	void setWifiIconEnabled(bool enabled);
 	void setCustomText(const String& text);
@@ -265,6 +293,12 @@ class AppState {
 	int brightnessVal_		   = 60;
 	int screenMode_ = 0;  // 0=Countdown, 1=Sensor, 2=DateTime, 3=Text, 4=Spinner
 	bool sensorBgEnabled_	 = true;
+	bool openMeteoEnabled_   = false;
+	float weatherLat_        = 21.0285f;
+	float weatherLon_        = 105.8542f;
+	float realTemp_          = 0.0f;
+	float realHumi_          = 0.0f;
+	bool realDataValid_      = false;
 	bool showMessageEnabled_ = true;
 	bool wifiIconEnabled_	 = true;
 	String customText_		 = "Co len!";

@@ -39,6 +39,12 @@ void AppState::load() {
 		preferences_.getInt(NvsKeys::kScreenMode, Defaults::kScreenMode);
 	sensorBgEnabled_ =
 		preferences_.getBool(NvsKeys::kSensorBg, Defaults::kSensorBgEnabled);
+	openMeteoEnabled_ =
+		preferences_.getBool(NvsKeys::kOpMetEn, Defaults::kOpenMeteoEnabled);
+	weatherLat_ =
+		preferences_.getFloat(NvsKeys::kWeaLat, Defaults::kWeatherLat);
+	weatherLon_ =
+		preferences_.getFloat(NvsKeys::kWeaLon, Defaults::kWeatherLon);
 	showMessageEnabled_ =
 		preferences_.getBool(NvsKeys::kShowMessage, Defaults::kShowMessage);
 	wifiIconEnabled_ =
@@ -203,6 +209,21 @@ void AppState::setScreenMode(int mode) {
 void AppState::setSensorBgEnabled(bool enabled) {
 	sensorBgEnabled_ = enabled;
 	preferences_.putBool(NvsKeys::kSensorBg, enabled);
+}
+
+void AppState::setOpenMeteoEnabled(bool enabled) {
+	openMeteoEnabled_ = enabled;
+	preferences_.putBool(NvsKeys::kOpMetEn, enabled);
+}
+
+void AppState::setWeatherLat(float lat) {
+	weatherLat_ = lat;
+	preferences_.putFloat(NvsKeys::kWeaLat, lat);
+}
+
+void AppState::setWeatherLon(float lon) {
+	weatherLon_ = lon;
+	preferences_.putFloat(NvsKeys::kWeaLon, lon);
 }
 
 void AppState::setWifiIconEnabled(bool enabled) {

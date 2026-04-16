@@ -128,6 +128,9 @@ void WebConfigServer::handleGetConfig(AsyncWebServerRequest *request) {
 	doc["cdTimeColor"] = state_->getCdTimeColor();
 
 	doc["sensorBg"] = state_->isSensorBgEnabled();
+	doc["openMeteoEn"] = state_->isOpenMeteoEnabled();
+	doc["weaLat"] = state_->getWeatherLat();
+	doc["weaLon"] = state_->getWeatherLon();
 
 	doc["showYear"] = state_->isShowYearEnabled();
 	doc["shortYear"] = state_->isShortYearEnabled();
@@ -231,6 +234,10 @@ void WebConfigServer::handleSave(AsyncWebServerRequest *request) {
 		state_->setRainbowSpeed(arg("rainbowSpeed").toInt());
 
 	state_->setSensorBgEnabled(hasArg("sensorBg") && arg("sensorBg") == "1");
+	state_->setOpenMeteoEnabled(hasArg("openMeteoEn") && arg("openMeteoEn") == "1");
+	if (hasArg("weaLat")) state_->setWeatherLat(arg("weaLat").toFloat());
+	if (hasArg("weaLon")) state_->setWeatherLon(arg("weaLon").toFloat());
+
 	state_->setWifiIconEnabled(hasArg("wifiIcon") && arg("wifiIcon") == "1");
 
 	if (hasArg("txtContent")) state_->setTextPanelContent(arg("txtContent"));

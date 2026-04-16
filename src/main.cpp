@@ -22,6 +22,7 @@
 #include "screens/RandomSpinnerScreen.h"
 #include "screens/SensorScreen.h"
 #include "screens/TextScreen.h"
+#include "WeatherManager.h"
 
 // ─── Module Instances ────────────────────────────────────────────────
 static AppState appState;
@@ -31,6 +32,7 @@ static TimeManager timeManager;
 static WebConfigServer webConfig;
 static SplashScreen splash;
 static DHTSensor dhtSensor;
+static WeatherManager weatherManager;
 
 // ─── Screen Instances ────────────────────────────────────────────────
 static CountdownScreen countdownScreen;
@@ -157,6 +159,9 @@ void setup() {
 
 	// 5. Initialize DHT11 sensor
 	dhtSensor.begin(DHTConfig::kPin);
+
+	// 6. Start background weather fetcher
+	weatherManager.begin(appState, network);
 
 	splash.setEnabled(appState.isSplashEnabled());
 	webConfig.begin(appState, display, splash, fireworks);

@@ -128,6 +128,9 @@ function populateForm() {
   document.querySelector('[name=cdTimeClr]').value = d.cdTimeColor || '#00ffff';
 
   document.querySelector('[name=sensorBg]').checked = d.sensorBg;
+  document.querySelector('[name=openMeteoEn]').checked = d.openMeteoEn;
+  document.querySelector('[name=weaLat]').value = d.weaLat !== undefined ? d.weaLat : 21.0285;
+  document.querySelector('[name=weaLon]').value = d.weaLon !== undefined ? d.weaLon : 105.8542;
 
   document.querySelector('[name=showYear]').checked = d.showYear;
   document.querySelector('[name=shortYear]').checked = d.shortYear;
@@ -355,6 +358,11 @@ window.onload = initApp;
     <div id='tab_sensor' class='tab-content'><div class='grid'>
       <div class='section'><h3>Màn hình cảm biến nhiệt/ẩm</h3>
         <label class='chk'><input type='checkbox' name='sensorBg' value='1'> Background 3D Gradient sinh động</label>
+        <h3 style='margin-top:16px; border-bottom:none; margin-bottom:5px;'>Thời Tiết Thực Tế (Mạng)</h3>
+        <label class='chk'><input type='checkbox' name='openMeteoEn' value='1'> Bật thời tiết thực tế (Open-Meteo)</label>
+        <span class='note'>Cần 15p để đồng bộ dữ liệu mỗi lần bật máy.</span>
+        <label>Vĩ độ (Latitude):</label><input type='number' step='any' name='weaLat' required>
+        <label>Kinh độ (Longitude):</label><input type='number' step='any' name='weaLon' required>
       </div>
     </div></div>
 

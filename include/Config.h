@@ -44,6 +44,9 @@ constexpr const char *kCustomText	 = "Co len!";
 constexpr int kScreenMode =
 	0;	// 0 = Countdown, 1 = Sensor, 2 = Date/Time, 3 = Text Matrix
 constexpr bool kSensorBgEnabled = true;	 // Background gradient on sensor screen
+constexpr bool kOpenMeteoEnabled = false; // Real weather Open-Meteo
+constexpr float kWeatherLat		= 21.0285f; // Hanoi default
+constexpr float kWeatherLon		= 105.8542f;
 constexpr bool kShowMessage		= true;	 // Show motivational message
 constexpr bool kWifiIcon		= true;	 // Show WiFi status indicator pixel
 // Text Matrix Settings
@@ -101,6 +104,9 @@ constexpr const char *kShowSecsDT	= "showSecsDT";
 constexpr const char *kBrightness	= "brightness";
 constexpr const char *kScreenMode	= "screenMode";
 constexpr const char *kSensorBg		= "sensBg";
+constexpr const char *kOpMetEn		= "opMetEn";
+constexpr const char *kWeaLat		= "weaLat";
+constexpr const char *kWeaLon		= "weaLon";
 constexpr const char *kShowMessage	= "showMsg";
 constexpr const char *kTxtContent	= "txtContent";
 constexpr const char *kTxtSpeed		= "txtSpeed";
