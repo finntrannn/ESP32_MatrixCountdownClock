@@ -9,7 +9,7 @@ và toàn bộ thông số đều có thể cấu hình được qua giao diện
 ![Framework](https://img.shields.io/badge/Framework-PlatformIO%20%2F%20Arduino-orange)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-**Tác giả:** finntrannn ([finntrannn.id.vn](https://finntrannn.id.vn))  
+**Tác giả:** finntrannn ([finn.id.vn](https://finn.id.vn))  
 **GitHub:** [finntrannn](https://github.com/finntrannn)
 
 ---
